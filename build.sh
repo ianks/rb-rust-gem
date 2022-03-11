@@ -20,8 +20,6 @@ setup_rust() {
   export PATH=/root/.cargo/bin:$PATH
   source $HOME/.cargo/env
   rustup target add $RUST_TARGET
-  cargo install cross
-  export CARGO=cross
   export CARGO_BUILD_TARGET="$RUST_TARGET"
   export PKG_CONFIG_ALLOW_CROSS=1
 }
