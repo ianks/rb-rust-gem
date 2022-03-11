@@ -4,8 +4,8 @@ require 'rake_compiler_dock'
 require 'yaml'
 
 GH_ACTION = YAML.safe_load(File.read('.github/workflows/build.yml'))
-PLATFORMS = GH_ACTION.dig('strategy', 'matrix', 'platform')
-RUBY_VERSIONS = GH_ACTION.dig('strategy', 'matrix', 'ruby_version')
+PLATFORMS = GH_ACTION.dig('jobs', 'build', 'strategy', 'matrix', 'platform')
+RUBY_VERSIONS = GH_ACTION.dig('jobs', 'build', 'strategy', 'matrix', 'ruby_version')
 
 namespace :native do
   desc 'Builds all docker images'

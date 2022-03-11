@@ -8,11 +8,11 @@ on:
     branches: [ main ]
 
 jobs:
-  native-gem:
-    name: "native-gem"
+  build:
+    name: "Build"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-mri-${{ matrix.platform.ruby_platform }}:1.2.0"
+      image: "larskanis/rake-compiler-dock-mri-${{ matrix.platform.ruby_target }}:1.2.0"
     strategy:
       matrix:
         ruby_version: 
