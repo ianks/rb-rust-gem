@@ -8,8 +8,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  native-gem:
+    name: "native-gem"
     runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-mri-${{ matrix.platform.ruby_platform }}:1.2.0"
     strategy:
       matrix:
         ruby_version: 
@@ -41,23 +44,17 @@ jobs:
 
           - ruby_target: x86_64-darwin
             rust_target: x86_64-apple-darwin
-      jobs:
-        native-gem:
-          name: "native-gem"
-          runs-on: ubuntu-latest
-          container:
-            image: "larskanis/rake-compiler-dock-mri-${{ matrix.platform.ruby_platform }}:1.2.0"
-          steps:
-            - uses: actions/checkout@v2
-            - name: 🧱 Build gem
-              run: ./build.sh
-              env:
-                RUST_TOOLCHAIN: stable
-                RUBY_TARGET: ${{ matrix.platform.ruby_target }}
-                RUST_TARGET: ${{ matrix.platform.rust_target }}
-                RUBY_VERSION: ${{ matrix.ruby_version }}
-          # - uses: actions/upload-artifact@v2
-          #   with:
-          #     name: native-gem
-          #     path: gems/${{ matrix.ruby_version }}/${{ matrix.platform.ruby_platform }}
-          #     retention-days: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: 🧱 Build gem
+        run: ./build.sh
+        env:
+          RUST_TOOLCHAIN: stable
+          RUBY_TARGET: ${{ matrix.platform.ruby_target }}
+          RUST_TARGET: ${{ matrix.platform.rust_target }}
+          RUBY_VERSION: ${{ matrix.ruby_version }}
+    # - uses: actions/upload-artifact@v2
+    #   with:
+    #     name: native-gem
+    #     path: gems/${{ matrix.ruby_version }}/${{ matrix.platform.ruby_platform }}
+    #     retention-days: 1
