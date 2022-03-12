@@ -47,7 +47,7 @@ jobs:
           #   rust_target: x86_64-apple-darwin
     steps:
       - uses: actions/checkout@v2
-      - run: apt-get update && apt-get install -y clang
+      - run: apt-get update && apt-get install -y libclang-dev libc6-dev-armhf-cross
         if: ${{ matrix.platform.ruby_target == 'arm-linux' }}
       - name: 🧱 Build gem
         run: ./build.sh
