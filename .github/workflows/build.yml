@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: apt-get update && apt-get install -y clang
-        if: ${{ matrix.platform.ruby_target == "arm-linux" }}
+        if: ${{ matrix.platform.ruby_target == 'arm-linux' }}
       - name: 🧱 Build gem
         run: ./build.sh
         env:
