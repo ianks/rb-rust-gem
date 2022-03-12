@@ -30,8 +30,9 @@ jobs:
           - ruby_target: x86-mingw32
             rust_target: i686-pc-windows-gnu
 
-          - ruby_target: x64-mingw-ucrt
-            rust_target: x86_64-pc-windows-gnu
+          # libclang issue
+          # - ruby_target: x64-mingw-ucrt
+          #   rust_target: x86_64-pc-windows-gnu
 
           - ruby_target: x64-mingw32
             rust_target: x86_64-pc-windows-gnu
