@@ -26,6 +26,7 @@ jobs:
 
           - ruby_target: arm-linux
             rust_target: arm-unknown-linux-gnueabihf
+            arch_dir: /usr/arm-linux-gnueabihf
 
           # - ruby_target: x86-mingw32
           #   rust_target: i686-pc-windows-gnu
@@ -56,6 +57,8 @@ jobs:
           RUBY_TARGET: ${{ matrix.platform.ruby_target }}
           RUST_TARGET: ${{ matrix.platform.rust_target }}
           RUBY_VERSION: ${{ matrix.ruby_version }}
+          C_INCLUDE_PATH: ${{ matrix.platform.arch_dir }}/include
+          LD_LIBRARY_PATH: ${{ matrix.platform.arch_dir }}/lib
     # - uses: actions/upload-artifact@v2
     #   with:
     #     name: native-gem
