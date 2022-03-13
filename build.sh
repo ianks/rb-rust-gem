@@ -4,13 +4,12 @@ set -eo pipefail
 IFS=$'\n\t'
 
 setup_ruby() {
-  export PATH="$HONME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin:$PATH"
 }
 
 upgrade_rubygems() {
   git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
   pushd /tmp/rubygems
-  ruby setup.rb
+  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin/ruby"
   popd
   rm -rf /tmp/rubygems
 }
@@ -25,12 +24,11 @@ setup_rust() {
 }
 
 build_example() {
-  rvm use $RUBY_VERSION
   cd examples/rust_ruby_example
   mkdir build
-  gem build --verbose rust_ruby_example.gemspec
-  gem install --verbose rust_ruby_example-*.gem --install-dir ./build/$RUBY_TARGET
-  ruby -rrust_ruby_example -e "puts RustRubyExample.reverse('Hello, world!')"
+  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin/gem" build --verbose rust_ruby_example.gemspec
+  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin/gem" install --verbose rust_ruby_example-*.gem --install-dir ./build/$RUBY_TARGET
+  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin/ruby" -rrust_ruby_example -e "puts RustRubyExample.reverse('Hello, world!')"
 }
 
 setup_ruby
