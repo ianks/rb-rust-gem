@@ -4,12 +4,13 @@ set -eo pipefail
 IFS=$'\n\t'
 
 setup_ruby() {
+  echo "Using $RUBY_VERSION"
 }
 
 upgrade_rubygems() {
   git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
   pushd /tmp/rubygems
-  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin/ruby"
+  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin/ruby" setup.rb
   popd
   rm -rf /tmp/rubygems
 }
