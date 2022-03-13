@@ -4,7 +4,7 @@ set -eo pipefail
 IFS=$'\n\t'
 
 setup_ruby() {
-  export PATH="~/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin:$PATH"
+  export PATH="$HONME/.rake-compiler/ruby/arm-linux-gnueabihf/ruby-$RUBY_VERSION/bin:$PATH"
 }
 
 upgrade_rubygems() {
