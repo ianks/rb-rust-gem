@@ -59,6 +59,7 @@ jobs:
           RUBY_VERSION: ${{ matrix.ruby_version }}
           BINDGEN_EXTRA_CLANG_ARGS: --sysroot=${{ matrix.platform.sysroot }}
           QEMU_LD_PREFIX: ${{ matrix.platform.sysroot }}
+          HOME: /root
     # - uses: actions/upload-artifact@v2
     #   with:
     #     name: native-gem
