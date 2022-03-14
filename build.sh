@@ -12,7 +12,8 @@ setup_ruby() {
 upgrade_rubygems() {
   git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
   pushd /tmp/rubygems
-  "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/$RUBY_VERSION/bin/ruby" setup.rb
+  # "$HOME/.rake-compiler/ruby/arm-linux-gnueabihf/$RUBY_VERSION/bin/ruby" setup.rb
+  "$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/ruby" setup.rb
   popd
   rm -rf /tmp/rubygems
 }
