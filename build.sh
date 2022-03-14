@@ -6,6 +6,7 @@ IFS=$'\n\t'
 setup_ruby() {
   export RUBY="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/ruby"
   export GEM_BIN="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/gem"
+  export GEM_HOME="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/lib/ruby/gems"
   echo "Using $RUBY_VERSION"
 }
 
