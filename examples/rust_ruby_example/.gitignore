@@ -1,2 +1,4 @@
 build/
 target/
+tmp/
+ext/rust_ruby_example/Makefile
