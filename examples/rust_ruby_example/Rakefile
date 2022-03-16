@@ -1,21 +1,25 @@
 require 'rake/extensiontask'
 
+PLATFORMS =  %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin]
+
 spec = Gem::Specification.new do |s|
   s.name = "rust_ruby_example"
   s.version = "0.1.0"
   s.platform = Gem::Platform::RUBY
   s.extensions = FileList["ext/**/extconf.rb"]
+  s.summary = "Testing"
+  s.authors = ["Ian Ker-Seymer"]
 end
 
 Rake::ExtensionTask.new('rust_ruby_example', spec) do |ext|
   ext.cross_compile = true
-  ext.cross_platform = %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin]
+  ext.cross_platform = PLATFORMS
 end
 
 Gem::PackageTask.new(spec) do |pkg|
 end
 
-%w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin].each do |plat|
+PLATFORMS.each do |plat|
   task "gem:native:#{plat}" do
     require 'rake_compiler_dock'
 
@@ -42,7 +46,7 @@ end
       rm -rf /tmp/rubygems
 
       export RUST_TARGET="#{ENV.fetch('RUST_TARGET')}"
-      export RUST_TOOLCHAIN="stable"
+      export RUST_TOOLCHAIN="#{ENV.fetch('RUST_TOOLCHAIN')}"
       curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y
       export PATH=/root/.cargo/bin:$PATH
       source "$HOME/.cargo/env"
