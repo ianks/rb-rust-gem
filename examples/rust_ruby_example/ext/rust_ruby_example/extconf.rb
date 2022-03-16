@@ -10,18 +10,11 @@ lib_dir = Dir.pwd
 cargo_dir = File.expand_path('../..', __dir__)
 spec = Struct.new(:name, :metadata).new(target, {})
 
-begin
-  Gem::Ext::CargoBuilder.new(spec).build(nil, dest_path, results, args, lib_dir, cargo_dir)
-rescue StandardError => e
-  puts results
-  raise
-end
-
 make_install = <<~EOF
   target_prefix = /#{target}
 
   TARGET = #{target}
-  DLLIB = $(TARGET).bundle
+  DLLIB = $(TARGET).#{RbConfig::CONFIG['DLEXT']}
   RUBYARCHDIR   = $(sitearchdir)$(target_prefix)
   CLEANLIBS = release/
 
@@ -32,3 +25,10 @@ make_install = <<~EOF
 EOF
 
 File.write('Makefile', make_install)
+
+begin
+  Gem::Ext::CargoBuilder.new(spec).build(nil, dest_path, results, args, lib_dir, cargo_dir)
+rescue StandardError => e
+  puts results
+  raise
+end
