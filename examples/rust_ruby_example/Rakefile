@@ -40,7 +40,7 @@ end
       popd
       rm -rf /tmp/rubygems
 
-      export RUST_TARGET="x86_64-unknown-linux-gnu"
+      export RUST_TARGET="#{ENV.fetch('RUST_TARGET')}"
       export RUST_TOOLCHAIN="stable"
       curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y
       export PATH=/root/.cargo/bin:$PATH
