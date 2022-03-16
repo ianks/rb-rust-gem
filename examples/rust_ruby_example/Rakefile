@@ -2,6 +2,7 @@ require 'rake/extensiontask'
 
 spec = Gem::Specification.new do |s|
   s.name = "rust_ruby_example"
+  s.version = "0.1.0"
   s.platform = Gem::Platform::RUBY
   s.extensions = FileList["ext/**/extconf.rb"]
 end
@@ -24,7 +25,7 @@ end
 
       if command -v yum; then
         sudo yum -y install llvm-toolset-7
-        export LIBCLANG_PATH="/opt/rh/llvm-toolset-7.0/root/usr/lib64"
+        export LIBCLANG_PATH="/opt/rh/llvm-toolset-7/root/usr/lib64"
       fi
 
       if command -v apt-get; then
