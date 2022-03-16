@@ -21,13 +21,15 @@ end
     sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
     RakeCompilerDock.sh <<~EOS, platform: plat
       if command -v yum; then
+        export LIBCLANG_PATH="/usr/lib64"
         sudo yum -y install clang-devel clang
       fi
 
       if command -v apt-get; then
-        sudo dpkg --add-architecture ${{ matrix.platform.arch }}
-        sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
-        # sudo apt-get update && sudo apt-get install -y libclang-dev
+        # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
+        # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
+        export LIBCLANG_PATH="/usr/lib/llvm-10/lib"
+        sudo apt-get update && sudo apt-get install -y libclang-dev clang
       fi
 
       git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
