@@ -61,8 +61,8 @@ jobs:
           # BINDGEN_EXTRA_CLANG_ARGS: --sysroot=${{ matrix.platform.sysroot }}
           # QEMU_LD_PREFIX: ${{ matrix.platform.sysroot }}
           # HOME: /root
-    - uses: actions/upload-artifact@v2
-      with:
-        name: native-gem
-        path: examples/rust_ruby_example/gems
-        retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: native-gem
+          path: examples/rust_ruby_example/gems
+          retention-days: 1
