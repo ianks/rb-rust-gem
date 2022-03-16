@@ -2,6 +2,36 @@ require 'rake/extensiontask'
 
 PLATFORMS =  %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin]
 
+task :docker do
+  FileUtils.mkdir_p("docker")
+  YAML.safe_load(File.read('../../.github/workflows/build.yml')).dig('jobs', 'build', 'strategy', 'matrix', 'platform').each do |plat|
+    File.write "docker/Dockerfile.#{plat['ruby_target']}", <<-EOS
+    FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:1.2.0
+
+    ENV RUBY_TARGET="#{plat['ruby_target']}" \\
+        RUST_TARGET="#{plat['rust_target']}" \\
+        RUST_TOOLCHAIN="stable" \\
+        BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}" \\
+        PKG_CONFIG_ALLOW_CROSS="1" \\
+        RUSTUP_HOME="/usr/local/rustup" \\
+        CARGO_HOME="/usr/local/cargo" \\
+        PATH="/usr/local/cargo/bin:$PATH"
+
+    RUN set -eux; \\
+        url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \\
+        curl --retry 3 --proto '=https' --tlsv1.2 -sSf "$url" > rustup-init; \\
+        chmod +x rustup-init; \\
+        ./rustup-init --no-modify-path --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y; \\
+        rm rustup-init; \\
+        chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \\
+        rustup --version; \\
+        cargo --version; \\
+        rustc --version; \\
+        rustup target add #{plat['rust_target']};
+    EOS
+  end
+end
+
 spec = Gem::Specification.new do |s|
   s.name = "rust_ruby_example"
   s.version = "0.1.0"

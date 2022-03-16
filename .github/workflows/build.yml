@@ -71,8 +71,9 @@ jobs:
         run: |
           cd examples/rust_ruby_example
           rake gem:native:${{ matrix.platform.ruby_target }}
+          find . -name "*.gem"
       - uses: actions/upload-artifact@v2
         with:
           name: native-gem
-          path: examples/rust_ruby_example/gems
+          path: examples/rust_ruby_example/pkg
           retention-days: 1
