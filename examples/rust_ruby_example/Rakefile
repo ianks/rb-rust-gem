@@ -29,7 +29,7 @@ end
         # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
         # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
         export LIBCLANG_PATH="/usr/lib/llvm-10/lib"
-        sudo apt-get update && sudo apt-get install -y libclang-dev clang
+        sudo apt-get update && sudo apt-get install -y libclang-dev clang llvm-dev
       fi
 
       git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
