@@ -22,7 +22,7 @@ task 'gem:native' do
   %w[x86_64-linux].each do |plat|
     RakeCompilerDock.sh <<~EOS, platform: plat
       if command -v yum; then
-        yum -y install clang-devel clang
+        sudo yum -y install clang-devel clang
       fi
 
       if command -v apt-get; then
