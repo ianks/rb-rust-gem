@@ -55,9 +55,6 @@ jobs:
       - name: Build docker image
         run: |
           docker buildx create --driver docker-container --use
-          # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
-          # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
-          sudo apt-get update && sudo apt-get install -y libclang-dev
           gem install rake-compiler-dock rake-compiler
 
       - name: 🧱 Build gem
