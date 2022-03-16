@@ -8,18 +8,17 @@ end
 
 Rake::ExtensionTask.new('rust_ruby_example', spec) do |ext|
   ext.cross_compile = true
-  # ext.cross_platform = %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux x86_64-darwin arm64-darwin]
-  ext.cross_platform = %w[x86_64-linux]
+  ext.cross_platform = %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin]
 end
 
 Gem::PackageTask.new(spec) do |pkg|
 end
 
-task 'gem:native' do
-  require 'rake_compiler_dock'
-  sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
-  %w[ x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin ].each do |plat|
-  # %w[x86_64-linux].each do |plat|
+%w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin].each do |plat|
+  task "gem:native:#{plat}" do
+    require 'rake_compiler_dock'
+
+    sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
     RakeCompilerDock.sh <<~EOS, platform: plat
       if command -v yum; then
         sudo yum -y install clang-devel clang

@@ -18,14 +18,13 @@ jobs:
           - ruby_target: x86_64-linux
             rust_target: x86_64-unknown-linux-gnu
             sysroot: /usr
-            arch: amd64
 
           # - ruby_target: arm64-darwin
           #   rust_target: aarch64-apple-darwin
 
-          # - ruby_target: arm-linux
-          #   rust_target: arm-unknown-linux-gnueabihf
-          #   sysroot: /usr/arm-linux-gnueabihf
+          - ruby_target: arm-linux
+            rust_target: arm-unknown-linux-gnueabihf
+            sysroot: /usr/arm-linux-gnueabihf
 
           # - ruby_target: x86-mingw32
           #   rust_target: i686-pc-windows-gnu
@@ -59,18 +58,19 @@ jobs:
           gem install rake-compiler-dock rake-compiler
 
       - name: 🧱 Build gem
-        run: |
-          cd examples/rust_ruby_example
-          rake gem:native
         env:
           RUST_TOOLCHAIN: stable
           RUBY_TARGET: ${{ matrix.platform.ruby_target }}
           RUST_TARGET: ${{ matrix.platform.rust_target }}
           RUBY_VERSION: ${{ matrix.ruby_version }}
           RCD_DOCKER_BUILD: "docker buildx build"
+          CARGO_BUILD_TARGET: ${{ matrix.platform.rust_target }}
           # BINDGEN_EXTRA_CLANG_ARGS: --sysroot=${{ matrix.platform.sysroot }}
           # QEMU_LD_PREFIX: ${{ matrix.platform.sysroot }}
           # HOME: /root
+        run: |
+          cd examples/rust_ruby_example
+          rake gem:native:${{ matrix.platform.ruby_target }}
       - uses: actions/upload-artifact@v2
         with:
           name: native-gem
