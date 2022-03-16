@@ -1,3 +1,43 @@
 require 'rake/extensiontask'
 
-Rake::ExtensionTask.new('rust_ruby_example')
+spec = Gem::Specification.new do |s|
+  s.name = "rust_ruby_example"
+  s.platform = Gem::Platform::RUBY
+  s.extensions = FileList["ext/**/extconf.rb"]
+end
+
+Rake::ExtensionTask.new('rust_ruby_example', spec) do |ext|
+  ext.cross_compile = true
+  # ext.cross_platform = %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux x86_64-darwin arm64-darwin]
+  ext.cross_platform = %w[x86_64-linux]
+end
+
+Gem::PackageTask.new(spec) do |pkg|
+end
+
+task 'gem:native' do
+  require 'rake_compiler_dock'
+  sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
+  # %w[ x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin ].each do |plat|
+  %w[x86_64-linux].each do |plat|
+    RakeCompilerDock.sh <<~EOS, platform: plat
+      git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
+      pushd /tmp/rubygems
+      ruby setup.rb
+      popd
+      rm -rf /tmp/rubygems
+
+      export RUST_TARGET="x86_64-unknown-linux-gnu"
+      export RUST_TOOLCHAIN="stable"
+      curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y
+      export PATH=/root/.cargo/bin:$PATH
+      source "$HOME/.cargo/env"
+      rustup target add "$RUST_TARGET"
+      export CARGO_BUILD_TARGET="$RUST_TARGET"
+      export PKG_CONFIG_ALLOW_CROSS=1
+
+      bundle --local 
+      rake native:#{plat} gem
+    EOS
+  end
+end

@@ -4,9 +4,13 @@ set -eo pipefail
 IFS=$'\n\t'
 
 setup_ruby() {
-  export RUBY="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/ruby"
-  export GEM_BIN="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/gem"
-  export GEM_HOME="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/lib/ruby/gems"
+  export RUBY="ruby"
+  export GEM_BIN="gem"
+  export RAKE="rake"
+  # export RUBY="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/ruby"
+  # export RAKE="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/rake"
+  # export GEM_BIN="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/bin/gem"
+  # export GEM_HOME="$HOME/.rake-compiler/ruby/x86_64-redhat-linux/$RUBY_VERSION/lib/ruby/gems"
   echo "Using $RUBY_VERSION"
 }
 
@@ -30,10 +34,7 @@ setup_rust() {
 
 build_example() {
   cd examples/rust_ruby_example
-  mkdir build
-  "$GEM_BIN" build --verbose rust_ruby_example.gemspec
-  "$GEM_BIN" install --verbose rust_ruby_example-*.gem --install-dir "./build/$RUBY_TARGET"
-  "$RUBY" -rrust_ruby_example -e "puts RustRubyExample.reverse('Hello, world!')"
+  "$RAKE" native:$RUBY_TARGET gem
 }
 
 setup_ruby

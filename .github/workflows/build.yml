@@ -49,20 +49,21 @@ jobs:
           #   rust_target: x86_64-apple-darwin
     steps:
       - uses: actions/checkout@v2
-      - run: apt-get update && apt-get install -y libclang-dev libc6-dev-armhf-cross
-        if: ${{ matrix.platform.ruby_target == 'arm-linux' }}
       - name: 🧱 Build gem
-        run: ./build.sh
+        run: |
+          docker buildx create --driver docker-container --use
+          cd examples/rust_ruby_example
+          rake gem:native
         env:
           RUST_TOOLCHAIN: stable
           RUBY_TARGET: ${{ matrix.platform.ruby_target }}
           RUST_TARGET: ${{ matrix.platform.rust_target }}
           RUBY_VERSION: ${{ matrix.ruby_version }}
-          BINDGEN_EXTRA_CLANG_ARGS: --sysroot=${{ matrix.platform.sysroot }}
-          QEMU_LD_PREFIX: ${{ matrix.platform.sysroot }}
-          HOME: /root
-    # - uses: actions/upload-artifact@v2
-    #   with:
-    #     name: native-gem
-    #     path: gems/${{ matrix.ruby_version }}/${{ matrix.platform.ruby_platform }}
-    #     retention-days: 1
+          # BINDGEN_EXTRA_CLANG_ARGS: --sysroot=${{ matrix.platform.sysroot }}
+          # QEMU_LD_PREFIX: ${{ matrix.platform.sysroot }}
+          # HOME: /root
+    - uses: actions/upload-artifact@v2
+      with:
+        name: native-gem
+        path: examples/rust_ruby_example/gems
+        retention-days: 1

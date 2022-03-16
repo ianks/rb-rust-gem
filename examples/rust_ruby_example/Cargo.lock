@@ -254,8 +254,8 @@ dependencies = [
 
 [[package]]
 name = "rb-sys"
-version = "0.6.0"
-source = "git+https://github.com/ianks/rb-sys?tag=v0.6.0#1aa5b589e86a14e01aba806511818c19f85d71f6"
+version = "0.6.1"
+source = "git+https://github.com/ianks/rb-sys?tag=v0.6.1#bbf4882c33dc1f045b68d00b85ed418d593050ec"
 dependencies = [
  "bindgen",
  "libc",
