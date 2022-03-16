@@ -21,7 +21,7 @@ end
     sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
     RakeCompilerDock.sh <<~EOS, platform: plat
       if command -v yum; then
-        export LIBCLANG_PATH="/usr/lib64"
+        export LIBCLANG_PATH="/usr/lib64/llvm"
         sudo yum -y install clang-devel clang
       fi
 
