@@ -58,6 +58,7 @@ jobs:
       - name: 🧱 Build gem
         run: |
           cd examples/rust_ruby_example
+          gem install rake-compiler-dock
           rake gem:native
         env:
           RUST_TOOLCHAIN: stable
