@@ -21,9 +21,15 @@ task 'gem:native' do
   # %w[ x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin ].each do |plat|
   %w[x86_64-linux].each do |plat|
     RakeCompilerDock.sh <<~EOS, platform: plat
-      # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
-      # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
-      sudo apt-get update && sudo apt-get install -y libclang-dev
+      if command -v yum; then
+        yum -y install clang-devel clang
+      fi
+
+      if command -v apt-get; then
+        # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
+        # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
+        sudo apt-get update && sudo apt-get install -y libclang-dev
+      fi
 
       git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
       pushd /tmp/rubygems
