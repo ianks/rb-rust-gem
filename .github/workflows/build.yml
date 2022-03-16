@@ -23,7 +23,7 @@ jobs:
           #   rust_target: aarch64-apple-darwin
 
           - ruby_target: arm-linux
-            rust_target: arm-unknown-linux-gnueabihf
+            rust_target: armv7-unknown-linux-gnueabihf
             sysroot: /usr/arm-linux-gnueabihf
 
           # - ruby_target: x86-mingw32
