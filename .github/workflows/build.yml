@@ -12,8 +12,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby_version:
-          - "3.1.0"
         platform:
           - ruby_target: x86_64-linux
             rust_target: x86_64-unknown-linux-gnu
@@ -43,6 +41,25 @@ jobs:
             rust_target: aarch64-unknown-linux-gnu
             bindgen_extra_clang_args: "--sysroot=/usr/aarch-linux-gnu"
 
+
+          # - ruby_target: arm64-darwin
+          #   rust_target: aarch64-apple-darwin
+
+
+          # - ruby_target: x86-mingw32
+          #   rust_target: i686-pc-windows-gnu
+
+          # libclang issue
+          # - ruby_target: x64-mingw-ucrt
+          #   rust_target: x86_64-pc-windows-gnu
+
+          # - ruby_target: x64-mingw32
+          #   rust_target: x86_64-pc-windows-gnu
+
+          # - ruby_target: x86-linux
+          #   rust_target: i686-unknown-linux-gnu
+
+
           # - ruby_target: x86_64-darwin
           #   rust_target: x86_64-apple-darwin
     steps:
@@ -53,25 +70,16 @@ jobs:
           ruby-version: "3.0"
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
-      - name: Build docker image
+      - name: 🧱 Build gem
+        env:
+          RCD_DOCKER_BUILD: "docker buildx build"
         run: |
           docker buildx create --driver docker-container --use
           gem install rake-compiler-dock rake-compiler
-
-      - name: 🧱 Build gem
-        env:
-          RUST_TOOLCHAIN: stable
-          RUBY_TARGET: ${{ matrix.platform.ruby_target }}
-          RUST_TARGET: ${{ matrix.platform.rust_target }}
-          RUBY_VERSION: ${{ matrix.ruby_version }}
-          RCD_DOCKER_BUILD: "docker buildx build"
-          CARGO_BUILD_TARGET: ${{ matrix.platform.rust_target }}
-          BINDGEN_EXTRA_CLANG_ARGS: ${{ matrix.platform.bindgen_extra_clang_args }}
-        run: |
           cd examples/rust_ruby_example
           rake gem:native:${{ matrix.platform.ruby_target }}
       - uses: actions/upload-artifact@v2
         with:
           name: native-gem
-          path: examples/rust_ruby_example/pkg
+          path: "**/*-${{ matrix.platform.ruby_target }}.gem"
           retention-days: 1
