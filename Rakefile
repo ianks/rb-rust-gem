@@ -11,6 +11,7 @@ namespace :docker do
     Dir['docker/Dockerfile.*'].each do |file|
       arch = File.extname(file).gsub('.', '')
       sh "docker build -f #{file} --tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 ."
+      sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 rbsys/rcd:#{arch}"
     end
   end
 
@@ -18,6 +19,7 @@ namespace :docker do
     Dir['docker/Dockerfile.*'].each do |file|
       arch = File.extname(file).gsub('.', '')
       sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:0.1.0"
+      sh "docker push rbsys/rcd:#{arch}"
     end
   end
 
@@ -74,3 +76,5 @@ namespace :docker do
             rm -rf /tmp/rubygems;
       EOS
     end
+  end
+end

@@ -34,9 +34,9 @@ PLATFORMS.each do |plat|
 
   #     if command -v apt-get; then
   #       # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
-  #       # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
+  #       # sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libclang-dev:${{ matrix.platform.arch }}
   #       export LIBCLANG_PATH="/usr/lib/llvm-10/lib"
-  #       sudo apt-get update && sudo apt-get install -y libclang-dev clang llvm-dev libc6-armhf-cross libc6-dev-armhf-cross
+  #       sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libclang-dev clang llvm-dev libc6-armhf-cross libc6-dev-armhf-cross
   #     fi
 
   #     git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
