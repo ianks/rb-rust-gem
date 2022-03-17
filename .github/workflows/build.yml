@@ -67,12 +67,9 @@ jobs:
           RCD_DOCKER_BUILD: "docker buildx build"
           CARGO_BUILD_TARGET: ${{ matrix.platform.rust_target }}
           BINDGEN_EXTRA_CLANG_ARGS: ${{ matrix.platform.bindgen_extra_clang_args }}
-          # QEMU_LD_PREFIX: ${{ matrix.platform.sysroot }}
-          # HOME: /root
         run: |
           cd examples/rust_ruby_example
           rake gem:native:${{ matrix.platform.ruby_target }}
-          find . -name "*.gem"
       - uses: actions/upload-artifact@v2
         with:
           name: native-gem

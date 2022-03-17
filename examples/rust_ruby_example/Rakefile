@@ -2,74 +2,6 @@ require 'rake/extensiontask'
 
 PLATFORMS =  %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin]
 
-namespace :docker do
-  desc 'Build docker images'
-  task :build do
-    Dir['docker/Dockerfile.*'].each do |file|
-      arch = File.extname(file).gsub('.', '')
-      sh "docker build -f #{file} --tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 ."
-    end
-  end
-
-  task :push do
-    Dir['docker/Dockerfile.*'].each do |file|
-      arch = File.extname(file).gsub('.', '')
-      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:0.1.0"
-    end
-  end
-
-  desc 'Generate dockerfiles'
-  task :codegen do
-    FileUtils.mkdir_p("docker")
-    YAML.safe_load(File.read('../../.github/workflows/build.yml')).dig('jobs', 'build', 'strategy', 'matrix', 'platform').each do |plat|
-      next if File.exist?("docker/Dockerfile.#{plat['ruby_target']}")
-
-      File.write "docker/Dockerfile.#{plat['ruby_target']}", <<~EOS
-      FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:1.2.0
-
-      ENV RUBY_TARGET="#{plat['ruby_target']}" \\
-          RUST_TARGET="#{plat['rust_target']}" \\
-          RUST_TOOLCHAIN="stable" \\
-          BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}" \\
-          PKG_CONFIG_ALLOW_CROSS="1" \\
-          RUSTUP_HOME="/usr/local/rustup" \\
-          CARGO_HOME="/usr/local/cargo" \\
-          PATH="/usr/local/cargo/bin:$PATH"
-
-      RUN set -eux; \\
-          echo "export PATH=/usr/local/cargo/bin:\\$PATH" >> /etc/rubybashrc; \\
-          echo "export RUSTUP_HOME=\\"$RUSTUP_HOME\\"" >> /etc/rubybashrc; \\
-          echo "export CARGO_HOME=\\"$CARGO_HOME\\"" >> /etc/rubybashrc; \\
-          echo "export RUBY_TARGET=\\"$RUBY_TARGET\\"" >> /etc/rubybashrc; \\
-          echo "export RUST_TARGET=\\"$RUST_TARGET\\"" >> /etc/rubybashrc; \\
-          echo "export RUST_TOOLCHAIN=\\"$RUST_TOOLCHAIN\\"" >> /etc/rubybashrc; \\
-          echo "export BINDGEN_EXTRA_CLANG_ARGS=\\"$BINDGEN_EXTRA_CLANG_ARGS\\"" >> /etc/rubybashrc; \\
-          echo "export PKG_CONFIG_ALLOW_CROSS=\\"$PKG_CONFIG_ALLOW_CROSS\\"" >> /etc/rubybashrc; \\
-          echo "export LIBCLANG_PATH=\\"$LIBCLANG_PATH\\"" >> /etc/rubybashrc; \\
-          echo "export CARGO_BUILD_TARGET=\\"$RUST_TARGET\\"" >> /etc/rubybashrc;
-
-      RUN set -eux; \\
-          url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \\
-          curl --retry 3 --proto '=https' --tlsv1.2 -sSf "$url" > rustup-init; \\
-          chmod +x rustup-init; \\
-          ./rustup-init --no-modify-path --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y; \\
-          rm rustup-init; \\
-          chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \\
-          rustup --version; \\
-          cargo --version; \\
-          rustc --version; \\
-          rustup target add #{plat['rust_target']};
-
-      RUN set -eux; \\
-          git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems; \\
-          cd /tmp/rubygems; \\
-          bash -c "ruby setup.rb"; \\
-          rm -rf /tmp/rubygems;
-      EOS
-    end
-  end
-end
-
 spec = Gem::Specification.new do |s|
   s.name = "rust_ruby_example"
   s.version = "0.1.0"
@@ -88,60 +20,52 @@ Gem::PackageTask.new(spec) do |pkg|
 end
 
 PLATFORMS.each do |plat|
+  # task "gem:native:#{plat}" do
+  #   require 'rake_compiler_dock'
+
+  #   sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
+  #   RakeCompilerDock.sh <<~EOS, platform: plat
+  #     set -ex
+
+  #     if command -v yum; then
+  #       sudo yum -y install llvm-toolset-7
+  #       export LIBCLANG_PATH="/opt/rh/llvm-toolset-7/root/usr/lib64"
+  #     fi
+
+  #     if command -v apt-get; then
+  #       # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
+  #       # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
+  #       export LIBCLANG_PATH="/usr/lib/llvm-10/lib"
+  #       sudo apt-get update && sudo apt-get install -y libclang-dev clang llvm-dev libc6-armhf-cross libc6-dev-armhf-cross
+  #     fi
+
+  #     git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
+  #     pushd /tmp/rubygems
+  #     ruby setup.rb
+  #     popd
+  #     rm -rf /tmp/rubygems
+
+  #     export RUST_TARGET="#{ENV.fetch('RUST_TARGET', '')}"
+  #     export RUST_TOOLCHAIN="#{ENV.fetch('RUST_TOOLCHAIN', '')}"
+  #     export BINDGEN_EXTRA_CLANG_ARGS="#{ENV.fetch('BINDGEN_EXTRA_CLANG_ARGS', '')}"
+  #     export PKG_CONFIG_ALLOW_CROSS=1
+  #     curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y
+  #     export PATH=/root/.cargo/bin:$PATH
+  #     source "$HOME/.cargo/env"
+  #     rustup target add "$RUST_TARGET"
+  #     export CARGO_BUILD_TARGET="$RUST_TARGET"
+
+  #     bundle --local 
+  #     rake native:#{plat} gem
+  #   EOS
+  # end
+
   task "gem:native:#{plat}" do
     require 'rake_compiler_dock'
-
+    ENV['RCD_IMAGE'] = "rbsys/rake-compiler-dock-mri-#{plat}:0.1.0"
     sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
     RakeCompilerDock.sh <<~EOS, platform: plat
-      set -ex
-
-      if command -v yum; then
-        sudo yum -y install llvm-toolset-7
-        export LIBCLANG_PATH="/opt/rh/llvm-toolset-7/root/usr/lib64"
-      fi
-
-      if command -v apt-get; then
-        # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
-        # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
-        export LIBCLANG_PATH="/usr/lib/llvm-10/lib"
-        sudo apt-get update && sudo apt-get install -y libclang-dev clang llvm-dev libc6-armhf-cross libc6-dev-armhf-cross
-      fi
-
-      git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems
-      pushd /tmp/rubygems
-      ruby setup.rb
-      popd
-      rm -rf /tmp/rubygems
-
-      export RUST_TARGET="#{ENV.fetch('RUST_TARGET', '')}"
-      export RUST_TOOLCHAIN="#{ENV.fetch('RUST_TOOLCHAIN', '')}"
-      export BINDGEN_EXTRA_CLANG_ARGS="#{ENV.fetch('BINDGEN_EXTRA_CLANG_ARGS', '')}"
-      export PKG_CONFIG_ALLOW_CROSS=1
-      curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y
-      export PATH=/root/.cargo/bin:$PATH
-      source "$HOME/.cargo/env"
-      rustup target add "$RUST_TARGET"
-      export CARGO_BUILD_TARGET="$RUST_TARGET"
-
-      bundle --local 
-      rake native:#{plat} gem
-    EOS
-  end
-
-  task "dock:native:#{plat}" do
-    require 'rake_compiler_dock'
-
-    sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
-    RakeCompilerDock.sh <<~EOS, platform: plat
-      set -ex
-
-      if command -v apt-get; then
-        # sudo dpkg --add-architecture ${{ matrix.platform.arch }}
-        # sudo apt-get update && sudo apt-get install -y libclang-dev:${{ matrix.platform.arch }}
-        export LIBCLANG_PATH="/usr/lib/llvm-10/lib"
-        sudo apt-get update && sudo apt-get install -y libclang-dev clang llvm-dev libc6-armhf-cross libc6-dev-armhf-cross
-      fi
-
+      set -e
       bundle --local 
       rake native:#{plat} gem
     EOS
