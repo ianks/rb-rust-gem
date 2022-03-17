@@ -1,0 +1,45 @@
+platforms:
+  - ruby_target: x86_64-linux
+    rust_target: x86_64-unknown-linux-gnu
+    bindgen_extra_clang_args: "--sysroot=/usr -I/usr/lib/gcc/x86_64-redhat-linux/4.8.2/include"
+
+  - ruby_target: arm-linux
+    rust_target: arm-unknown-linux-gnueabihf
+    bindgen_extra_clang_args: "--sysroot=/usr/arm-linux-gnueabihf"
+
+  - ruby_target: aarch64-linux
+    rust_target: aarch64-unknown-linux-gnu
+    bindgen_extra_clang_args: "--sysroot=/usr/aarch-linux-gnu"
+
+  - ruby_target: x86-linux
+    rust_target: i686-unknown-linux-gnu
+    bindgen_extra_clang_args: "--sysroot=/usr -I/usr/lib/gcc/i686-redhat-linux/4.8.2/include"
+
+  # - ruby_target: arm64-darwin
+  #   rust_target: aarch64-apple-darwin
+
+
+  # - ruby_target: x86-mingw32
+  #   rust_target: i686-pc-windows-gnu
+
+  # - ruby_target: x64-mingw-ucrt
+  #   rust_target: x86_64-pc-windows-gnu
+
+  # - ruby_target: x64-mingw32
+  #   rust_target: x86_64-pc-windows-gnu
+
+
+  # - ruby_target: arm64-darwin
+  #   rust_target: aarch64-apple-darwin
+
+  # - ruby_target: x86-mingw32
+  #   rust_target: i686-pc-windows-gnu
+
+  # - ruby_target: x64-mingw-ucrt
+  #   rust_target: x86_64-pc-windows-gnu
+
+  # - ruby_target: x64-mingw32
+  #   rust_target: x86_64-pc-windows-gnu
+
+  # - ruby_target: x86_64-darwin
+  #   rust_target: x86_64-apple-darwin

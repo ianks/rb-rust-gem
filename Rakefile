@@ -2,23 +2,33 @@
 
 require 'yaml'
 
-GH_ACTION = YAML.safe_load(File.read('.github/workflows/build.yml'))
-PLATFORMS = GH_ACTION.dig('jobs', 'build', 'strategy', 'matrix', 'platform')
+BUILDS = YAML.safe_load(File.read('builds.yaml'))
+PLATFORMS = BUILDS.dig('platforms')
 
 namespace :docker do
-  desc 'Build docker images'
-  task :build do
-    Dir['docker/Dockerfile.*'].each do |file|
-      arch = File.extname(file).gsub('.', '')
-      sh "docker build -f #{file} --tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 ."
-      sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 rbsys/rcd:#{arch}"
+  dockerfiles = Dir['docker/Dockerfile.*']
+  archs = dockerfiles.map { |f| File.extname(f).gsub('.', '') }
+  pairs = dockerfiles.zip(archs)
+
+  namespace :build do
+    pairs.each do |pair|
+      dockerfile, arch = pair
+
+      desc 'Build docker image for %s' % arch
+      task arch do
+        sh "docker build -f #{dockerfile} --tag rbsys/rake-compiler-dock-mri-#{arch}:1.2.0 ."
+        sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 rbsys/rcd:#{arch}"
+      end
     end
   end
+
+  desc "Build docker images for all platforms"
+  task build: pairs.map { |pair| "build:#{pair.last}" }
 
   task :push do
     Dir['docker/Dockerfile.*'].each do |file|
       arch = File.extname(file).gsub('.', '')
-      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:0.1.0"
+      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:1.2.0"
       sh "docker push rbsys/rcd:#{arch}"
     end
   end
@@ -58,7 +68,7 @@ namespace :docker do
             echo "export CARGO_BUILD_TARGET=\\"$RUST_TARGET\\"" >> /etc/rubybashrc;
 
         RUN set -eux; \\
-            url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \\
+            url="https://static.rust-lang.org/rustup/dist/$RUST_TARGET/rustup-init"; \\
             curl --retry 3 --proto '=https' --tlsv1.2 -sSf "$url" > rustup-init; \\
             chmod +x rustup-init; \\
             ./rustup-init --no-modify-path --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y; \\
@@ -67,7 +77,7 @@ namespace :docker do
             rustup --version; \\
             cargo --version; \\
             rustc --version; \\
-            rustup target add #{plat['rust_target']};
+            rustup target add "$RUST_TARGET";
 
         RUN set -eux; \\
             git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems; \\
