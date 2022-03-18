@@ -9,7 +9,7 @@ ENV RUBY_TARGET="x86-linux" \
     RUSTUP_HOME="/usr/local/rustup" \
     CARGO_HOME="/usr/local/cargo" \
     PATH="/usr/local/cargo/bin:$PATH" \
-    LIBCLANG_ROOT="/usr/lib/llvm/lib" \
+    LIBCLANG_ROOT="/usr/lib/llvm" \
     LIBCLANG_PATH="$LIBCLANG_ROOT/lib"
 
 RUN set -eux; \
