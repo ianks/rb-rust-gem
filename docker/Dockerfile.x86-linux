@@ -1,4 +1,7 @@
-FROM conanio/clang9 as clang
+FROM conanio/clang9-x86 as clang
+
+RUN sudo tar --exclude=*.a --exclude=*.py -zcvhf /llvm.tar.gz /usr/lib/llvm-9/lib
+
 FROM larskanis/rake-compiler-dock-mri-x86-linux:1.2.0
 
 ENV RUBY_TARGET="x86-linux" \
@@ -9,7 +12,7 @@ ENV RUBY_TARGET="x86-linux" \
     RUSTUP_HOME="/usr/local/rustup" \
     CARGO_HOME="/usr/local/cargo" \
     PATH="/usr/local/cargo/bin:$PATH" \
-    LIBCLANG_PATH="/usr/lib/llvm/lib"
+    LIBCLANG_PATH="/usr/lib/llvm-9/lib"
 
 RUN set -eux; \
     echo "export PATH=/usr/local/cargo/bin:\$PATH" >> /etc/rubybashrc; \
@@ -41,4 +44,9 @@ RUN set -eux; \
     bash -c "ruby setup.rb"; \
     rm -rf /tmp/rubygems;
 
-COPY --from=clang /usr/lib/llvm-9 /usr/lib/llvm
+COPY --from=clang /llvm.tar.gz /llvm.tar.gz
+
+RUN set -eux; \
+    cd /; \
+    tar xzf llvm.tar.gz; \
+    rm llvm.tar.gz;

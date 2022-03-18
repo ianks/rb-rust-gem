@@ -4,20 +4,28 @@ require 'yaml'
 
 BUILDS = YAML.safe_load(File.read('builds.yaml'))
 PLATFORMS = BUILDS.dig('platforms')
+VERSION_TAG = "1.2.0"
 
 namespace :docker do
   dockerfiles = Dir['docker/Dockerfile.*']
   archs = dockerfiles.map { |f| File.extname(f).gsub('.', '') }
   pairs = dockerfiles.zip(archs)
 
-  namespace :build do
-    pairs.each do |pair|
-      dockerfile, arch = pair
+  pairs.each do |pair|
+    dockerfile, arch = pair
 
+    namespace :build do
       desc 'Build docker image for %s' % arch
       task arch do
-        sh "docker build -f #{dockerfile} --tag rbsys/rake-compiler-dock-mri-#{arch}:1.2.0 ."
-        sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:0.1.0 rbsys/rcd:#{arch}"
+        sh "docker build -f #{dockerfile} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{VERSION_TAG} ."
+        sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:#{VERSION_TAG} rbsys/rcd:#{arch}"
+      end
+    end
+
+    namespace :sh do
+      desc 'Shell into docker image for %s' % arch 
+      task arch do
+        system "docker run --privileged --entrypoint /bin/bash -it rbsys/rcd:#{arch}"
       end
     end
   end
@@ -28,7 +36,7 @@ namespace :docker do
   task :push do
     Dir['docker/Dockerfile.*'].each do |file|
       arch = File.extname(file).gsub('.', '')
-      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:1.2.0"
+      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{VERSION_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
     end
   end
@@ -44,7 +52,7 @@ namespace :docker do
       end
 
       File.write "docker/Dockerfile.#{plat['ruby_target']}", <<~EOS
-        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:1.2.0
+        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:#{VERSION_TAG}
 
         ENV RUBY_TARGET="#{plat['ruby_target']}" \\
             RUST_TARGET="#{plat['rust_target']}" \\
