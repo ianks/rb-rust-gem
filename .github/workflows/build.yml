@@ -30,14 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/build-cache
-          key: ${{ runner.os }}-${{ matrix.ruby_target }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ruby_target }}-buildx
-
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.0"
@@ -45,14 +37,12 @@ jobs:
 
       - name: 🧱 Build gem
         env:
-          RCD_DOCKER_BUILD: "docker buildx build --cache-from=type=local,src=/tmp/build-cache --cache-to=type=local,dest=/tmp/build-cache-new --load"
+          RCD_DOCKER_BUILD: "docker buildx build"
         run: |
           docker buildx create --driver docker-container --use
           gem install rake-compiler-dock rake-compiler
           cd examples/rust_ruby_example
           rake gem:native:${{ matrix.platform.ruby_target }}
-          rm -rf /tmp/build-cache
-          mv /tmp/build-cache-new /tmp/build-cache
       - uses: actions/upload-artifact@v2
         with:
           name: native-gem
