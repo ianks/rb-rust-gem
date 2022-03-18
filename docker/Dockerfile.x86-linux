@@ -9,8 +9,7 @@ ENV RUBY_TARGET="x86-linux" \
     RUSTUP_HOME="/usr/local/rustup" \
     CARGO_HOME="/usr/local/cargo" \
     PATH="/usr/local/cargo/bin:$PATH" \
-    LIBCLANG_ROOT="/usr/lib/llvm" \
-    LIBCLANG_PATH="$LIBCLANG_ROOT/lib"
+    LIBCLANG_PATH="/usr/lib/llvm/lib"
 
 RUN set -eux; \
     echo "export PATH=/usr/local/cargo/bin:\$PATH" >> /etc/rubybashrc; \
@@ -42,4 +41,4 @@ RUN set -eux; \
     bash -c "ruby setup.rb"; \
     rm -rf /tmp/rubygems;
 
-COPY --from=clang /usr/lib/llvm-9 ${LIBCLANG_ROOT}
+COPY --from=clang /usr/lib/llvm-9 /usr/lib/llvm
