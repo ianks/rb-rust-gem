@@ -1,3 +1,4 @@
+FROM conanio/clang10 as clang10
 FROM larskanis/rake-compiler-dock-mri-x86-linux:1.2.0
 
 ENV RUBY_TARGET="x86-linux" \
@@ -8,7 +9,7 @@ ENV RUBY_TARGET="x86-linux" \
     RUSTUP_HOME="/usr/local/rustup" \
     CARGO_HOME="/usr/local/cargo" \
     PATH="/usr/local/cargo/bin:$PATH" \
-    LIBCLANG_PATH="/usr/lib/clang-private"
+    LIBCLANG_PATH="/usr/lib/llvm-10/lib"
 
 RUN set -eux; \
     echo "export PATH=/usr/local/cargo/bin:\$PATH" >> /etc/rubybashrc; \
@@ -40,6 +41,4 @@ RUN set -eux; \
     bash -c "ruby setup.rb"; \
     rm -rf /tmp/rubygems;
 
-RUN set -eux; \
-    yum install -y llvm-private llvm-private-devel; \
-    yum clean all;
+COPY --from=clang10 /usr/lib/llvm-10 /usr/lib/llvm-10
