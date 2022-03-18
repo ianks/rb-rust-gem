@@ -1,4 +1,4 @@
-FROM conanio/clang9-x86 as clang
+FROM conanio/clang9 as clang
 FROM larskanis/rake-compiler-dock-mri-x86-linux:1.2.0
 
 ENV RUBY_TARGET="x86-linux" \
