@@ -25,7 +25,7 @@ namespace :docker do
     namespace :sh do
       desc 'Shell into docker image for %s' % arch 
       task arch do
-        system "docker run --privileged --entrypoint /bin/bash -it rbsys/rcd:#{arch}"
+        system "docker run --rm --privileged --entrypoint /bin/bash -it rbsys/rcd:#{arch}"
       end
     end
   end
