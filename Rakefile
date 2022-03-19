@@ -6,8 +6,8 @@ BUILDS = YAML.safe_load(File.read('builds.yaml'))
 PLATFORMS = BUILDS.dig('platforms')
 RCD_TAG = '1.2.0'
 DOCKERFILES = Dir['docker/Dockerfile.*']
-DOCKER_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
-DOCKFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKER_PLATFORMS)
+DOCKERFILE_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
+DOCKERFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKERFILE_PLATFORMS)
 
 desc "Pretty the code"
 task :fmt do
@@ -17,7 +17,7 @@ end
 
 namespace :docker do
 
-  DOCKFILE_PLATFORM_PAIRS.each do |pair|
+  DOCKERFILE_PLATFORM_PAIRS.each do |pair|
     dockerfile, arch = pair
 
     namespace :build do
@@ -37,10 +37,10 @@ namespace :docker do
   end
 
   desc 'Build docker images for all platforms'
-  task build: DOCKFILE_PLATFORMS.map { |p| "build:#{p}" }
+  task build: DOCKERFILE_PLATFORMS.map { |p| "build:#{p}" }
 
   task :push do
-    DOCKER_PLATFORMS.each do |arch|
+    DOCKERFILE_PLATFORMS.each do |arch|
       sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
     end

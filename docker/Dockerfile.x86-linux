@@ -17,7 +17,7 @@ ENV RUBY_TARGET="x86-linux" \
 COPY setup/lib.sh /lib.sh
 
 COPY setup/rustup.sh /
-RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN || true
+RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN 
 
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
