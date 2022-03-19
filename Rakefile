@@ -22,7 +22,8 @@ namespace :docker do
     namespace :build do
       desc 'Build docker image for %s' % arch
       task arch do
-        sh "docker build -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
+        docker_build = ENV.fetch('RBSYS_DOCKER_BUILD', 'docker build')
+        sh "#{docker_build} -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
         sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} rbsys/rcd:#{arch}"
       end
     end
