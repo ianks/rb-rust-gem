@@ -28,10 +28,5 @@ ENV LIBCLANG_PATH="/usr/lib/llvm/lib" \
 COPY setup/rubybashrc.sh /
 RUN /rubybashrc.sh
 
-COPY --from=clang /llvm.tar.gz /llvm.tar.gz
-
-RUN set -eux; \
-    cd /; \
-    mkdir -p ${LIBCLANG_PATH}; \
-    tar xzf llvm.tar.gz --strip-components=3 -C ${LIBCLANG_PATH}; \
-    rm llvm.tar.gz;
+COPY setup/libclang.sh /
+RUN /libclang.sh 13.0.1 /usr/lib/llvm

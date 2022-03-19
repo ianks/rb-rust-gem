@@ -9,14 +9,13 @@ DOCKERFILES = Dir['docker/Dockerfile.*']
 DOCKERFILE_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
 DOCKERFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKERFILE_PLATFORMS)
 
-desc "Pretty the code"
+desc 'Pretty the code'
 task :fmt do
   sh 'shfmt -i 2 -w -ci -sr ./docker/setup'
   sh 'rubocop -A Rakefile'
 end
 
 namespace :docker do
-
   DOCKERFILE_PLATFORM_PAIRS.each do |pair|
     dockerfile, arch = pair
 
@@ -39,12 +38,15 @@ namespace :docker do
   desc 'Build docker images for all platforms'
   task build: DOCKERFILE_PLATFORMS.map { |p| "build:#{p}" }
 
-  task :push do
-    DOCKERFILE_PLATFORMS.each do |arch|
+  DOCKERFILE_PLATFORMS.each do |arch|
+    task "push:#{arch}" do
       sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
     end
   end
+
+  desc 'Push docker images for all platforms'
+  task push: DOCKERFILE_PLATFORMS.map { |p| "push:#{p}" }
 
   desc 'Generate DOCKERFILES'
   task :codegen do
