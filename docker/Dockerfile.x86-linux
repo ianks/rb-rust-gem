@@ -1,9 +1,5 @@
 ARG RCD_TAG
 
-FROM conanio/clang9-x86 as clang
-
-RUN sudo tar -zcvf /llvm.tar.gz /usr/lib/i386-linux-gnu/libclang* /usr/lib/i386-linux-gnu/libLLVM*
-
 FROM larskanis/rake-compiler-dock-mri-x86-linux:${RCD_TAG}
 
 ENV RUBY_TARGET="x86-linux" \
