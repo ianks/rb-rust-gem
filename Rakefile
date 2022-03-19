@@ -4,14 +4,20 @@ require 'yaml'
 
 BUILDS = YAML.safe_load(File.read('builds.yaml'))
 PLATFORMS = BUILDS.dig('platforms')
-RCD_TAG = "1.2.0"
+RCD_TAG = '1.2.0'
+DOCKERFILES = Dir['docker/Dockerfile.*']
+DOCKER_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
+DOCKFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKER_PLATFORMS)
+
+desc "Pretty the code"
+task :fmt do
+  sh 'shfmt -i 2 -w -ci -sr ./docker/setup'
+  sh 'rubocop -A Rakefile'
+end
 
 namespace :docker do
-  dockerfiles = Dir['docker/Dockerfile.*']
-  archs = dockerfiles.map { |f| File.extname(f).gsub('.', '') }
-  pairs = dockerfiles.zip(archs)
 
-  pairs.each do |pair|
+  DOCKFILE_PLATFORM_PAIRS.each do |pair|
     dockerfile, arch = pair
 
     namespace :build do
@@ -23,30 +29,29 @@ namespace :docker do
     end
 
     namespace :sh do
-      desc 'Shell into docker image for %s' % arch 
+      desc 'Shell into docker image for %s' % arch
       task arch do
         system "docker run --rm --privileged --entrypoint /bin/bash -it rbsys/rcd:#{arch}"
       end
     end
   end
 
-  desc "Build docker images for all platforms"
-  task build: pairs.map { |pair| "build:#{pair.last}" }
+  desc 'Build docker images for all platforms'
+  task build: DOCKFILE_PLATFORMS.map { |p| "build:#{p}" }
 
   task :push do
-    Dir['docker/Dockerfile.*'].each do |file|
-      arch = File.extname(file).gsub('.', '')
+    DOCKER_PLATFORMS.each do |arch|
       sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
     end
   end
 
-  desc 'Generate dockerfiles'
+  desc 'Generate DOCKERFILES'
   task :codegen do
     PLATFORMS.each do |plat|
       if File.exist?("docker/Dockerfile.#{plat['ruby_target']}")
         puts "Skip docker/Dockerfile.#{plat['ruby_target']}"
-        next 
+        next
       else
         puts "Generate docker/Dockerfile.#{plat['ruby_target']}"
       end

@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 set -x
 set -euo pipefail
@@ -16,7 +16,7 @@ main() {
   chmod +x rustup-init
   ./rustup-init --no-modify-path --default-toolchain "$3" --profile minimal -y
   chmod -R a+w $RUSTUP_HOME $CARGO_HOME
-  rustup target add $2 
+  rustup target add $2
 
   builtin popd
   rm -rf "${td}"

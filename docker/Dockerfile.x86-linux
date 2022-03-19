@@ -1,8 +1,9 @@
+ARG RCD_TAG
+
 FROM conanio/clang9-x86 as clang
 
 RUN sudo tar -zcvf /llvm.tar.gz /usr/lib/i386-linux-gnu/libclang* /usr/lib/i386-linux-gnu/libLLVM*
 
-ARG RCD_TAG
 FROM larskanis/rake-compiler-dock-mri-x86-linux:${RCD_TAG}
 
 ENV RUBY_TARGET="x86-linux" \
@@ -16,7 +17,7 @@ ENV RUBY_TARGET="x86-linux" \
 COPY setup/lib.sh /lib.sh
 
 COPY setup/rustup.sh /
-RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN
+RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN || true
 
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
