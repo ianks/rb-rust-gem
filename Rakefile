@@ -4,7 +4,7 @@ require 'yaml'
 
 BUILDS = YAML.safe_load(File.read('builds.yaml'))
 PLATFORMS = BUILDS.dig('platforms')
-VERSION_TAG = "1.2.0"
+RCD_TAG = "1.2.0"
 
 namespace :docker do
   dockerfiles = Dir['docker/Dockerfile.*']
@@ -17,8 +17,8 @@ namespace :docker do
     namespace :build do
       desc 'Build docker image for %s' % arch
       task arch do
-        sh "docker build -f #{dockerfile} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{VERSION_TAG} ."
-        sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:#{VERSION_TAG} rbsys/rcd:#{arch}"
+        sh "docker build -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
+        sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} rbsys/rcd:#{arch}"
       end
     end
 
@@ -36,7 +36,7 @@ namespace :docker do
   task :push do
     Dir['docker/Dockerfile.*'].each do |file|
       arch = File.extname(file).gsub('.', '')
-      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{VERSION_TAG}"
+      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
     end
   end
@@ -52,46 +52,31 @@ namespace :docker do
       end
 
       File.write "docker/Dockerfile.#{plat['ruby_target']}", <<~EOS
-        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:#{VERSION_TAG}
+        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:#{RCD_TAG}
 
         ENV RUBY_TARGET="#{plat['ruby_target']}" \\
             RUST_TARGET="#{plat['rust_target']}" \\
             RUST_TOOLCHAIN="stable" \\
-            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}" \\
             PKG_CONFIG_ALLOW_CROSS="1" \\
             RUSTUP_HOME="/usr/local/rustup" \\
             CARGO_HOME="/usr/local/cargo" \\
             PATH="/usr/local/cargo/bin:$PATH"
 
-        RUN set -eux; \\
-            echo "export PATH=/usr/local/cargo/bin:\\$PATH" >> /etc/rubybashrc; \\
-            echo "export RUSTUP_HOME=\\"$RUSTUP_HOME\\"" >> /etc/rubybashrc; \\
-            echo "export CARGO_HOME=\\"$CARGO_HOME\\"" >> /etc/rubybashrc; \\
-            echo "export RUBY_TARGET=\\"$RUBY_TARGET\\"" >> /etc/rubybashrc; \\
-            echo "export RUST_TARGET=\\"$RUST_TARGET\\"" >> /etc/rubybashrc; \\
-            echo "export RUST_TOOLCHAIN=\\"$RUST_TOOLCHAIN\\"" >> /etc/rubybashrc; \\
-            echo "export BINDGEN_EXTRA_CLANG_ARGS=\\"$BINDGEN_EXTRA_CLANG_ARGS\\"" >> /etc/rubybashrc; \\
-            echo "export PKG_CONFIG_ALLOW_CROSS=\\"$PKG_CONFIG_ALLOW_CROSS\\"" >> /etc/rubybashrc; \\
-            echo "export LIBCLANG_PATH=\\"$LIBCLANG_PATH\\"" >> /etc/rubybashrc; \\
-            echo "export CARGO_BUILD_TARGET=\\"$RUST_TARGET\\"" >> /etc/rubybashrc;
+        COPY setup/lib.sh /lib.sh
 
-        RUN set -eux; \\
-            url="https://static.rust-lang.org/rustup/dist/$RUST_TARGET/rustup-init"; \\
-            curl --retry 3 --proto '=https' --tlsv1.2 -sSf "$url" > rustup-init; \\
-            chmod +x rustup-init; \\
-            ./rustup-init --no-modify-path --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y; \\
-            rm rustup-init; \\
-            chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \\
-            rustup --version; \\
-            cargo --version; \\
-            rustc --version; \\
-            rustup target add "$RUST_TARGET";
+        COPY setup/rubybashrc.sh /
+        RUN /rubybashrc.sh
 
-        RUN set -eux; \\
-            git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems; \\
-            cd /tmp/rubygems; \\
-            bash -c "ruby setup.rb"; \\
-            rm -rf /tmp/rubygems;
+        COPY setup/rustup.sh /
+        RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN
+
+        COPY setup/rubygems.sh /
+        RUN /rubygems.sh
+
+        RUN source /lib.sh && install_packages llvm-toolset-7 libclang-dev clang llvm-dev libc6-arm64-cross libc6-dev-arm64-cross
+
+        ENV LIBCLANG_PATH="" \
+            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}"
       EOS
     end
   end

@@ -1,4 +1,5 @@
-FROM larskanis/rake-compiler-dock-mri-aarch64-linux:1.2.0
+ARG RCD_TAG
+FROM larskanis/rake-compiler-dock-mri-aarch64-linux:${RCD_TAG}
 
 ENV RUBY_TARGET="aarch64-linux" \
     RUST_TARGET="aarch64-unknown-linux-gnu" \
@@ -10,37 +11,18 @@ ENV RUBY_TARGET="aarch64-linux" \
     PATH="/usr/local/cargo/bin:$PATH" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib"
 
-RUN set -eux; \
-    echo "export PATH=/usr/local/cargo/bin:\$PATH" >> /etc/rubybashrc; \
-    echo "export RUSTUP_HOME=\"$RUSTUP_HOME\"" >> /etc/rubybashrc; \
-    echo "export CARGO_HOME=\"$CARGO_HOME\"" >> /etc/rubybashrc; \
-    echo "export RUBY_TARGET=\"$RUBY_TARGET\"" >> /etc/rubybashrc; \
-    echo "export RUST_TARGET=\"$RUST_TARGET\"" >> /etc/rubybashrc; \
-    echo "export RUST_TOOLCHAIN=\"$RUST_TOOLCHAIN\"" >> /etc/rubybashrc; \
-    echo "export BINDGEN_EXTRA_CLANG_ARGS=\"$BINDGEN_EXTRA_CLANG_ARGS\"" >> /etc/rubybashrc; \
-    echo "export PKG_CONFIG_ALLOW_CROSS=\"$PKG_CONFIG_ALLOW_CROSS\"" >> /etc/rubybashrc; \
-    echo "export LIBCLANG_PATH=\"$LIBCLANG_PATH\"" >> /etc/rubybashrc; \
-    echo "export CARGO_BUILD_TARGET=\"$RUST_TARGET\"" >> /etc/rubybashrc;
+COPY setup/lib.sh /lib.sh
 
-RUN set -eux; \
-    url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
-    curl --retry 3 --proto '=https' --tlsv1.2 -sSf "$url" > rustup-init; \
-    chmod +x rustup-init; \
-    ./rustup-init --no-modify-path --default-toolchain "$RUST_TOOLCHAIN" --profile minimal -y; \
-    rm rustup-init; \
-    chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
-    rustup --version; \
-    cargo --version; \
-    rustc --version; \
-    rustup target add aarch64-unknown-linux-gnu;
+COPY setup/rustup.sh /
+RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN
 
-RUN set -eux; \
-    git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems /tmp/rubygems; \
-    cd /tmp/rubygems; \
-    bash -c "ruby setup.rb"; \
-    rm -rf /tmp/rubygems;
+COPY setup/rubygems.sh /
+RUN /rubygems.sh
 
-RUN set -eux; \
-    apt-get update -qq; \
-    apt-get install -y --no-install-recommends libclang-dev clang llvm-dev libc6-arm64-cross libc6-dev-arm64-cross; \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives;
+RUN bash -c "source /lib.sh && install_packages llvm-toolset-7 libclang-dev clang llvm-dev libc6-arm64-cross libc6-dev-arm64-cross"
+
+ENV LIBCLANG_PATH="/opt/rh/llvm-toolset-7/root/usr/lib64" \
+    BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr -I/usr/lib/gcc/x86_64-redhat-linux/4.8.2/include"
+
+COPY setup/rubybashrc.sh /
+RUN /rubybashrc.sh
