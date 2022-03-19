@@ -8,6 +8,7 @@ RCD_TAG = '1.2.0'
 DOCKERFILES = Dir['docker/Dockerfile.*']
 DOCKERFILE_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
 DOCKERFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKERFILE_PLATFORMS)
+DOCKER = ENV.fetch('RBSYS_DOCKER', 'docker')
 
 desc 'Pretty the code'
 task :fmt do
@@ -22,9 +23,8 @@ namespace :docker do
     namespace :build do
       desc 'Build docker image for %s' % arch
       task arch do
-        docker_build = ENV.fetch('RBSYS_DOCKER_BUILD', 'docker build')
-        sh "#{docker_build} -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
-        sh "docker image tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} rbsys/rcd:#{arch}"
+        sh "#{DOCKER} build -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
+        sh "#{DOCKER} image tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} rbsys/rcd:#{arch}"
       end
     end
 
@@ -41,8 +41,8 @@ namespace :docker do
 
   DOCKERFILE_PLATFORMS.each do |arch|
     task "push:#{arch}" do
-      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
-      sh "docker push rbsys/rcd:#{arch}"
+      sh "#{DOCKER} push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
+      sh "#{DOCKER} push rbsys/rcd:#{arch}"
     end
   end
 

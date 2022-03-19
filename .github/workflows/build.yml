@@ -37,7 +37,7 @@ jobs:
 
       - name: 🧱 Build gem
         env:
-          RCD_DOCKER_BUILD: "docker buildx build"
+          RCD_DOCKER: "docker buildx build"
         run: |
           docker buildx create --driver docker-container --use
           gem install rake-compiler-dock rake-compiler
