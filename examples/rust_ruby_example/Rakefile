@@ -62,7 +62,7 @@ PLATFORMS.each do |plat|
 
   task "gem:native:#{plat}" do
     require 'rake_compiler_dock'
-    ENV['RCD_IMAGE'] = "rbsys/rake-compiler-dock-mri-#{plat}:1.2.0"
+    ENV['RCD_IMAGE'] = "rbsys/rcd:#{plat}"
     sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
     RakeCompilerDock.sh <<~EOS, platform: plat
       set -e
