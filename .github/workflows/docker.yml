@@ -39,10 +39,16 @@ jobs:
           ruby-version: "3.0" 
           bundler-cache: true 
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: 🧱 Build container
         env:
           RBSYS_DOCKER: "docker buildx"
           RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_target }}-buildcache --cache-to=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_target }}-buildcache,mode=max"
         run: |
-          docker buildx create --driver docker-container --use
           rake docker:build:${{ matrix.platform.ruby_target }}
+          rake docker:push:${{ matrix.platform.ruby_target }}
