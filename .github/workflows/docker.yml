@@ -42,7 +42,7 @@ jobs:
       - name: 🧱 Build container
         env:
           RBSYS_DOCKER: "docker buildx"
-          RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_version}}-buildcache --cache-to=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_version}}-buildcache,mode=max"
+          RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_target }}-buildcache --cache-to=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_target }}-buildcache,mode=max"
         run: |
           docker buildx create --driver docker-container --use
           rake docker:build:${{ matrix.platform.ruby_target }}
