@@ -9,7 +9,7 @@ ENV RUBY_TARGET="arm64-darwin" \
     CARGO_HOME="/usr/local/cargo" \
     PATH="/usr/local/cargo/bin:$PATH" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib/" \
-    BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/aarch64-linux-gnu"
+    BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/opt/osxcross/target/SDK/MacOSX11.1.sdk/"
 
 COPY setup/lib.sh /lib.sh
 
