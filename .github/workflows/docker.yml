@@ -19,7 +19,6 @@ jobs:
           # - ruby_target: x86-mingw32
           # - ruby_target: x64-mingw-ucrt
           # - ruby_target: x64-mingw32
-          # - ruby_target: x86-linux
           # - ruby_target: arm64-darwin
           # - ruby_target: x86-mingw32
           # - ruby_target: x64-mingw-ucrt
