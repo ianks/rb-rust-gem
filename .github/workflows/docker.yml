@@ -44,26 +44,10 @@ jobs:
           ruby-version: "3.0" 
           bundler-cache: true 
 
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-${{ matrix.platform.ruby_target }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.platform.ruby_target }}-buildx-
-
       - name: 🧱 Build container
         env:
           RBSYS_DOCKER: "docker buildx"
-          RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max --load"
+          RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=gha --cache-to=type=gha,mode=max"
         run: |
           docker buildx create --driver docker-container --use
           rake docker:build:${{ matrix.platform.ruby_target }}
-
-        # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
