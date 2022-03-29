@@ -23,8 +23,7 @@ namespace :docker do
     namespace :build do
       desc 'Build docker image for %s' % arch
       task arch do
-        sh "#{DOCKER} build #{ENV['RBSYS_DOCKER_BUILD_EXTRA_ARGS']} -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
-        sh "#{DOCKER} image tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} rbsys/rcd:#{arch}"
+        sh "#{DOCKER} build #{ENV['RBSYS_DOCKER_BUILD_EXTRA_ARGS']} -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rcd:#{arch} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
       end
     end
 
@@ -41,8 +40,8 @@ namespace :docker do
 
   DOCKERFILE_PLATFORMS.each do |arch|
     task "push:#{arch}" do
-      sh "#{DOCKER} push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
-      sh "#{DOCKER} push rbsys/rcd:#{arch}"
+      sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
+      sh "docker push rbsys/rcd:#{arch}"
     end
   end
 
