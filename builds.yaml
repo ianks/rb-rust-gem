@@ -19,9 +19,9 @@ platforms:
     rust_target: x86_64-apple-darwin
     bindgen_extra_clang_args: ""
 
-  # - ruby_target: arm64-darwin
-  #   rust_target: aarch64-apple-darwin
-  #   bindgen_extra_clang_args: ""
+  - ruby_target: arm64-darwin
+    rust_target: aarch64-apple-darwin
+    bindgen_extra_clang_args: ""
 
   # - ruby_target: x86-mingw32
   #   rust_target: i686-pc-windows-gnu
