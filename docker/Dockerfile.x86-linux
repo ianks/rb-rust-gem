@@ -11,6 +11,9 @@ ENV RUBY_TARGET="x86-linux" \
 
 COPY setup/lib.sh /lib.sh
 
+COPY setup/libclang.sh /
+RUN /libclang.sh 13.0.1 /usr/lib/llvm
+
 COPY setup/rustup.sh /
 RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN 
 
@@ -22,8 +25,5 @@ ENV LIBCLANG_PATH="/usr/lib/llvm/lib" \
 
 COPY setup/rubybashrc.sh /
 RUN /rubybashrc.sh
-
-COPY setup/libclang.sh /
-RUN /libclang.sh 13.0.1 /usr/lib/llvm
 
 RUN source /lib.sh && install_packages libedit libedit-devel 
