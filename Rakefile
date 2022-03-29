@@ -2,9 +2,9 @@
 
 require 'yaml'
 
+RCD_TAG = '1.2.1'
 BUILDS = YAML.safe_load(File.read('builds.yaml'))
 PLATFORMS = BUILDS.dig('platforms')
-RCD_TAG = '1.2.0'
 DOCKERFILES = Dir['docker/Dockerfile.*']
 DOCKERFILE_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
 DOCKERFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKERFILE_PLATFORMS)
@@ -68,7 +68,9 @@ namespace :docker do
             PKG_CONFIG_ALLOW_CROSS="1" \\
             RUSTUP_HOME="/usr/local/rustup" \\
             CARGO_HOME="/usr/local/cargo" \\
-            PATH="/usr/local/cargo/bin:$PATH"
+            PATH="/usr/local/cargo/bin:$PATH" \\
+            LIBCLANG_PATH="" \\
+            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}"
 
         COPY setup/lib.sh /lib.sh
 
@@ -82,9 +84,6 @@ namespace :docker do
         RUN /rubygems.sh
 
         RUN source /lib.sh && install_packages llvm-toolset-7 libclang-dev clang llvm-dev libc6-arm64-cross libc6-dev-arm64-cross
-
-        ENV LIBCLANG_PATH="" \
-            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}"
       EOS
     end
   end
