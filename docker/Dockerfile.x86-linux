@@ -26,4 +26,4 @@ RUN /rubybashrc.sh
 COPY setup/libclang.sh /
 RUN /libclang.sh 13.0.1 /usr/lib/llvm
 
-RUN source /lib.sh && install_packages libedit-devel 
+RUN source /lib.sh && install_packages libedit libedit-devel 
