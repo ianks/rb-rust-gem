@@ -4,7 +4,7 @@ FROM larskanis/rake-compiler-dock-mri-x86-linux:${RCD_TAG}
 
 ENV RUBY_TARGET="x86-linux" \
     RUST_TARGET="i686-unknown-linux-gnu" \
-    RUST_TOOLCHAIN="stable" \
+    RUSTUP_DEFAULT_TOOLCHAIN="stable" \
     PKG_CONFIG_ALLOW_CROSS="1" \
     RUSTUP_HOME="/usr/local/rustup" \
     CARGO_HOME="/usr/local/cargo" \
@@ -13,7 +13,7 @@ ENV RUBY_TARGET="x86-linux" \
 COPY setup/lib.sh /lib.sh
 
 COPY setup/rustup.sh /
-RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN 
+RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN 
 
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
