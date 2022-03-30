@@ -4,14 +4,14 @@ set -x
 set -euo pipefail
 
 # shellcheck disable=SC1091
-# source /lib.sh
+source /lib.sh
 
-main() {
+build_from_source() {
   local clang_version
-  clang_version="$1"
+  clang_version="12.0.1"
 
   local install_dir
-  install_dir="$2"
+  install_dir="/usr/lib/llvm"
 
   local td
   td="$(mktemp -d)"
@@ -51,7 +51,26 @@ main() {
 
   builtin popd
   rm -rf "${td}"
+}
+
+install_rpm() {
+  wget https://vault.centos.org/centos/8/AppStream/x86_64/os/Packages/clang-libs-12.0.1-4.module_el8.5.0+1025+93159d6c.i686.rpm \
+       https://vault.centos.org/centos/8/AppStream/x86_64/os/Packages/llvm-libs-12.0.1-2.module_el8.5.0+918+ed335b90.i686.rpm \
+       https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/ncurses-libs-6.1-9.20180224.el8.i686.rpm
+  rpm -Uvh --nodeps *.rpm
+  ln -s /usr/lib/libtinfo.so.6 /usr/lib/libtinfo.so.5
+  rm *.rpm
+}
+
+main() {
+  if command -v rpm > /dev/null; then
+    install_rpm
+  else
+    build_from_source
+  fi
+
   rm "${0}"
 }
+
 
 main "${@}"
