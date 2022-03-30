@@ -29,24 +29,24 @@ main() {
   builtin cd llvm
   mkdir -p build-release
   builtin cd build-release
-  cmake .. -G 'Unix Makefiles' "$shared_llvm_flags" -DLLVM_ENABLE_LIBXML2=OFF -DLLVM_PARALLEL_LINK_JOBS=1
-  make -j "$(nproc)" install
+  cmake .. -G 'Unix Makefiles' $shared_llvm_flags -DLLVM_ENABLE_LIBXML2=OFF
+  make install
   builtin cd ../..
 
   # LLD
   builtin cd lld
   mkdir -p build-release
   builtin cd build-release
-  cmake .. -G 'Unix Makefiles' "$shared_llvm_flags" -DCMAKE_CXX_STANDARD=17 
-  make -j "$(nproc)" install
+  cmake .. -G 'Unix Makefiles' $shared_llvm_flags -DCMAKE_CXX_STANDARD=17 
+  make install
   builtin cd ../..
 
   # Clang
   builtin cd clang
   mkdir -p build-release
   builtin cd build-release
-  cmake .. -G 'Unix Makefiles' "$shared_llvm_flags"
-  make -j "$(nproc)" install
+  cmake .. -G 'Unix Makefiles' $shared_llvm_flags
+  make install
   builtin cd ../..
 
   builtin popd
