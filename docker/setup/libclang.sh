@@ -37,7 +37,7 @@ main() {
   builtin cd lld
   mkdir -p build-release
   builtin cd build-release
-  cmake .. -G 'Unix Makefiles' $shared_llvm_flags -DCMAKE_CXX_STANDARD=17 
+  cmake .. -G 'Unix Makefiles' $shared_llvm_flags -DCMAKE_CXX_STANDARD=17
   make install
   builtin cd ../..
 
