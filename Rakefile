@@ -68,14 +68,9 @@ namespace :docker do
             PKG_CONFIG_ALLOW_CROSS="1" \\
             RUSTUP_HOME="/usr/local/rustup" \\
             CARGO_HOME="/usr/local/cargo" \\
-            PATH="/usr/local/cargo/bin:$PATH" \\
-            LIBCLANG_PATH="" \\
-            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}"
+            PATH="/usr/local/cargo/bin:$PATH"
 
         COPY setup/lib.sh /lib.sh
-
-        COPY setup/rubybashrc.sh /
-        RUN /rubybashrc.sh
 
         COPY setup/rustup.sh /
         RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
@@ -83,7 +78,11 @@ namespace :docker do
         COPY setup/rubygems.sh /
         RUN /rubygems.sh
 
-        RUN source /lib.sh && install_packages llvm-toolset-7 libclang-dev clang llvm-dev libc6-arm64-cross libc6-dev-arm64-cross
+        ENV LIBCLANG_PATH="" \\
+            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}"
+
+        COPY setup/rubybashrc.sh /
+        RUN /rubybashrc.sh
       EOS
     end
   end
