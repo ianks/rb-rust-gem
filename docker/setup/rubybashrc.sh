@@ -7,7 +7,7 @@ set -euo pipefail
 source /lib.sh
 
 main() {
-  echo "export PATH=/usr/local/cargo/bin:\$PATH" >> /etc/rubybashrc
+  echo "export PATH=\"/usr/local/cargo/bin:\$PATH\"" >> /etc/rubybashrc
   echo "export RUSTUP_HOME=\"$RUSTUP_HOME\"" >> /etc/rubybashrc
   echo "export CARGO_HOME=\"$CARGO_HOME\"" >> /etc/rubybashrc
   echo "export RUBY_TARGET=\"$RUBY_TARGET\"" >> /etc/rubybashrc

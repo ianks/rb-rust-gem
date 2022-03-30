@@ -17,9 +17,9 @@ jobs:
           - ruby_target: x86-linux
           - ruby_target: x86_64-darwin
           - ruby_target: arm64-darwin
-          - ruby_target: x64-mingw32
+          - ruby_target: x86-mingw32
+          # - ruby_target: x64-mingw32
           # - ruby_target: x64-mingw-ucrt
-          # - ruby_target: x86-mingw32
     steps:
       - uses: actions/checkout@v2
 
@@ -45,10 +45,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-${{ matrix.platform.ruby_version }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.platform.ruby_version }}-buildx
+
       - name: 🧱 Build container
         env:
           RBSYS_DOCKER: "docker buildx"
-          RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_target }}-buildcache --cache-to=type=registry,ref=rbsys/rcd:${{ matrix.platform.ruby_target }}-buildcache,mode=max --load"
+          RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,mode=max,dest=/tmp/.buildx-cache-new --load"
         run: |
           rake docker:build:${{ matrix.platform.ruby_target }}
           rake docker:push:${{ matrix.platform.ruby_target }}
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

@@ -59,11 +59,12 @@ namespace :docker do
       end
 
       File.write "docker/Dockerfile.#{plat['ruby_target']}", <<~EOS
-        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:#{RCD_TAG}
+        ARG RCD_TAG
+        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:${RCD_TAG}
 
         ENV RUBY_TARGET="#{plat['ruby_target']}" \\
             RUST_TARGET="#{plat['rust_target']}" \\
-            RUST_TOOLCHAIN="stable" \\
+            RUSTUP_DEFAULT_TOOLCHAIN="stable" \\
             PKG_CONFIG_ALLOW_CROSS="1" \\
             RUSTUP_HOME="/usr/local/rustup" \\
             CARGO_HOME="/usr/local/cargo" \\
@@ -77,7 +78,7 @@ namespace :docker do
         RUN /rubybashrc.sh
 
         COPY setup/rustup.sh /
-        RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUST_TOOLCHAIN
+        RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
 
         COPY setup/rubygems.sh /
         RUN /rubygems.sh

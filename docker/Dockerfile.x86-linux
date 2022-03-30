@@ -11,8 +11,14 @@ ENV RUBY_TARGET="x86-linux" \
 
 COPY setup/lib.sh /lib.sh
 
-COPY setup/libclang.sh /
-RUN /libclang.sh 13.0.1 /usr/lib/llvm
+# COPY setup/libclang.sh /
+# RUN /libclang.sh 13.0.1 /usr/lib/llvm
+
+RUN set -ex; \
+    wget https://vault.centos.org/centos/8/AppStream/x86_64/os/Packages/clang-libs-12.0.1-4.module_el8.5.0+1025+93159d6c.i686.rpm; \
+    wget https://vault.centos.org/centos/8/AppStream/x86_64/os/Packages/llvm-libs-12.0.1-2.module_el8.5.0+918+ed335b90.i686.rpm; \
+    rpm -Uvh --nodeps *.rpm; \
+    rm *.rpm;
 
 COPY setup/rustup.sh /
 RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN 
@@ -20,7 +26,7 @@ RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
 
-ENV LIBCLANG_PATH="/usr/lib/llvm/lib" \
+ENV LIBCLANG_PATH="/usr/lib" \
     BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr -I/usr/lib/gcc/i686-redhat-linux/4.8.2/include"
 
 COPY setup/rubybashrc.sh /
