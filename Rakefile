@@ -39,7 +39,7 @@ namespace :docker do
   task build: DOCKERFILE_PLATFORMS.map { |p| "build:#{p}" }
 
   DOCKERFILE_PLATFORMS.each do |arch|
-    task "push:#{arch}" do
+    task "push:#{arch}" => "build:#{arch}" do
       sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
     end

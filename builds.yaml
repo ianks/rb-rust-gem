@@ -27,10 +27,10 @@ platforms:
     rust_target: i686-pc-windows-gnu
     bindgen_extra_clang_args: ""
 
-  # - ruby_target: x64-mingw-ucrt
-  #   rust_target: x86_64-pc-windows-gnu
-  #   bindgen_extra_clang_args: ""
+  - ruby_target: x64-mingw32
+    rust_target: x86_64-pc-windows-gnu
+    bindgen_extra_clang_args: ""
 
-  # - ruby_target: x64-mingw32
+  # - ruby_target: x64-mingw-ucrt
   #   rust_target: x86_64-pc-windows-gnu
   #   bindgen_extra_clang_args: ""
