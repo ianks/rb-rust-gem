@@ -1,0 +1,28 @@
+ARG RCD_TAG
+
+FROM mstorsjo/llvm-mingw:20220323 as llvm
+
+FROM larskanis/rake-compiler-dock-mri-x86-mingw32:${RCD_TAG}
+
+ENV RUBY_TARGET="x86-mingw32" \
+    RUST_TARGET="i686-pc-windows-gnu" \
+    RUSTUP_DEFAULT_TOOLCHAIN="stable" \
+    PKG_CONFIG_ALLOW_CROSS="1" \
+    RUSTUP_HOME="/usr/local/rustup" \
+    CARGO_HOME="/usr/local/cargo" \
+    PATH="/usr/local/cargo/bin:$PATH" \
+    BINDGEN_EXTRA_CLANG_ARGS="" \
+    LIBCLANG_PATH="/usr/lib/llvm/lib"
+
+COPY setup/lib.sh /lib.sh
+
+COPY setup/rubybashrc.sh /
+RUN /rubybashrc.sh
+
+COPY setup/rustup.sh /
+RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
+
+COPY setup/rubygems.sh /
+RUN /rubygems.sh
+
+COPY --from=llvm /opt/llvm-mingw/ /usr/lib/llvm/
