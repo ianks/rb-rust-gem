@@ -23,4 +23,4 @@ ENV BINDGEN_EXTRA_CLANG_ARGS="" \
 COPY setup/rubybashrc.sh /
 RUN /rubybashrc.sh
 
-RUN source /lib.sh && install_packages libclang-dev 
+RUN bash -c "source /lib.sh && install_packages libclang-dev"
