@@ -2,8 +2,6 @@
 name: Build native gems
 
 on:
-  - push
-  - pull_request
   - workflow_dispatch
 
 jobs:
@@ -21,7 +19,7 @@ jobs:
           - ruby_target: x86_64-darwin
           - ruby_target: arm64-darwin
           - ruby_target: x86-mingw32
-          # - ruby_target: x64-mingw32
+          - ruby_target: x64-mingw32
           # - ruby_target: x64-mingw-ucrt
     steps:
       - uses: actions/checkout@v2
