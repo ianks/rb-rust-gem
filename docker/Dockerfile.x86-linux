@@ -20,7 +20,7 @@ RUN set -ex; \
     rm *.rpm;
 
 COPY setup/rustup.sh /
-RUN /rustup.sh i686-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN 
+RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN 
 
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
