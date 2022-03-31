@@ -17,6 +17,7 @@ main() {
   echo "export PKG_CONFIG_ALLOW_CROSS=\"$PKG_CONFIG_ALLOW_CROSS\"" >> /etc/rubybashrc
   echo "export LIBCLANG_PATH=\"$LIBCLANG_PATH\"" >> /etc/rubybashrc
   echo "export CARGO_BUILD_TARGET=\"$RUST_TARGET\"" >> /etc/rubybashrc
+  echo "export CARGO=\"/usr/local/cargo/bin/cargo\"" >> /etc/rubybashrc
 
   rm "${0}"
 }

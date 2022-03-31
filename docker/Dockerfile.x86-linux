@@ -26,7 +26,8 @@ COPY setup/rubygems.sh /
 RUN /rubygems.sh
 
 ENV LIBCLANG_PATH="/usr/lib" \
-    BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr -I/usr/lib/gcc/i686-redhat-linux/4.8.2/include"
+    BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr -I/usr/lib/gcc/i686-redhat-linux/4.8.2/include" \
+    CARGO="/usr/local/bin/cargo"
 
 COPY setup/rubybashrc.sh /
 RUN /rubybashrc.sh

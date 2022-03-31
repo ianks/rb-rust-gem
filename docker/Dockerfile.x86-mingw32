@@ -17,15 +17,10 @@ RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
 
-RUN set -ex; \
-    bash -c "source /lib.sh && install_packages zstd"; \
-    wget https://mirror.msys2.org/mingw/clang32/mingw-w64-clang-i686-clang-13.0.1-3-any.pkg.tar.zst; \
-    tar xf mingw-w64-clang-i686-clang-13.0.1-3-any.pkg.tar.zst; \
-    rm mingw-w64-clang-i686-clang-13.0.1-3-any.pkg.tar.zst; \
-    apt-get purge --assume-yes --auto-remove zstd;
+RUN bash -c "source /lib.sh && install_packages libclang-dev"
 
 ENV BINDGEN_EXTRA_CLANG_ARGS="" \
-    LIBCLANG_PATH="/clang32/bin/"
+    LIBCLANG_PATH="/usr/lib/llvm-10/lib/"
 
 COPY setup/rubybashrc.sh /
 RUN /rubybashrc.sh
