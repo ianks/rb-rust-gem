@@ -1,63 +1,63 @@
 # frozen_string_literal: true
 
-require 'yaml'
+require "yaml"
 
-RCD_TAG = '1.2.1'
-BUILDS = YAML.safe_load(File.read('builds.yaml'))
-PLATFORMS = BUILDS.dig('platforms')
-DOCKERFILES = Dir['docker/Dockerfile.*']
-DOCKERFILE_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).gsub('.', '') }
+RCD_TAG = "1.2.1"
+BUILDS = YAML.safe_load(File.read("builds.yaml"))
+PLATFORMS = BUILDS.dig("platforms")
+DOCKERFILES = Dir["docker/Dockerfile.*"]
+DOCKERFILE_PLATFORMS = DOCKERFILES.map { |f| File.extname(f).delete(".") }
 DOCKERFILE_PLATFORM_PAIRS = DOCKERFILES.zip(DOCKERFILE_PLATFORMS)
-DOCKER = ENV.fetch('RBSYS_DOCKER', 'docker')
+DOCKER = ENV.fetch("RBSYS_DOCKER", "docker")
 
-desc 'Pretty the code'
+desc "Pretty the code"
 task :fmt do
-  sh 'shfmt -i 2 -w -ci -sr ./docker/setup'
-  sh 'rubocop -A Rakefile'
+  sh "shfmt -i 2 -w -ci -sr ./docker/setup"
+  sh "standardrb --fix Rakefile"
 end
 
-namespace :build do
-  task 'gh' do
-    require 'json'
-    sh 'gh workflow run "Build native gems" && sleep 3'
-    id = JSON.parse(`gh run list --workflow=build.yml --limit=1 --json="databaseId"`).first['databaseId']
-    system "gh run watch #{id}"
-    sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Native Gem\"'"
-  rescue Interrupt
-    sh "gh run cancel #{id}"
-  end
+desc "Build the native gems on github"
+task ".github/workflows/build.yml" do
+  require "json"
+  sh 'gh workflow run "Build native gems" && sleep 3'
+  id = JSON.parse(`gh run list --workflow=build.yml --limit=1 --json="databaseId"`).first["databaseId"]
+  system "gh run watch #{id}"
+  sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Native Gem\"'"
+rescue Interrupt
+  sh "gh run cancel #{id}"
+end
+
+desc "Build the docker images on github"
+task ".github/workflows/docker.yml" do
+  require "json"
+  sh 'gh workflow run "Build and push docker images" && sleep 3'
+  id = JSON.parse(`gh run list --workflow=docker.yml --limit=1 --json="databaseId"`).first["databaseId"]
+  system "gh run watch #{id}"
+  sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Docker Build\"'"
+rescue Interrupt
+  sh "gh run cancel #{id}"
 end
 
 namespace :docker do
-  task 'gh' do
-    require 'json'
-    sh 'gh workflow run "Build and push docker images" && sleep 3'
-    id = JSON.parse(`gh run list --workflow=docker.yml --limit=1 --json="databaseId"`).first['databaseId']
-    system "gh run watch #{id}"
-    sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Docker Build\"'"
-  rescue Interrupt
-    sh "gh run cancel #{id}"
-  end
-
   DOCKERFILE_PLATFORM_PAIRS.each do |pair|
     dockerfile, arch = pair
 
     namespace :build do
-      desc 'Build docker image for %s' % arch
+      desc "Build docker image for %s" % arch
       task arch do
-        sh "#{DOCKER} build #{ENV['RBSYS_DOCKER_BUILD_EXTRA_ARGS']} -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rcd:#{arch} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
+        sh "#{DOCKER} build #{ENV["RBSYS_DOCKER_BUILD_EXTRA_ARGS"]} -f #{dockerfile} --build-arg RCD_TAG=#{RCD_TAG} --tag rbsys/rcd:#{arch} --tag rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG} ./docker"
       end
     end
 
     namespace :sh do
-      desc 'Shell into docker image for %s' % arch
+      desc "Shell into docker image for %s" % arch
       task arch do
         system "docker run --rm --privileged --entrypoint /bin/bash -it rbsys/rcd:#{arch}"
       end
     end
   end
 
-  desc 'Build docker images for all platforms'
+  desc "Build docker images for all platforms"
   task build: DOCKERFILE_PLATFORMS.map { |p| "build:#{p}" }
 
   DOCKERFILE_PLATFORMS.each do |arch|
@@ -67,45 +67,6 @@ namespace :docker do
     end
   end
 
-  desc 'Push docker images for all platforms'
+  desc "Push docker images for all platforms"
   task push: DOCKERFILE_PLATFORMS.map { |p| "push:#{p}" }
-
-  desc 'Generate DOCKERFILES'
-  task :codegen do
-    PLATFORMS.each do |plat|
-      if File.exist?("docker/Dockerfile.#{plat['ruby_target']}")
-        puts "Skip docker/Dockerfile.#{plat['ruby_target']}"
-        next
-      else
-        puts "Generate docker/Dockerfile.#{plat['ruby_target']}"
-      end
-
-      File.write "docker/Dockerfile.#{plat['ruby_target']}", <<~EOS
-        ARG RCD_TAG
-        FROM larskanis/rake-compiler-dock-mri-#{plat['ruby_target']}:${RCD_TAG}
-
-        ENV RUBY_TARGET="#{plat['ruby_target']}" \\
-            RUST_TARGET="#{plat['rust_target']}" \\
-            RUSTUP_DEFAULT_TOOLCHAIN="stable" \\
-            PKG_CONFIG_ALLOW_CROSS="1" \\
-            RUSTUP_HOME="/usr/local/rustup" \\
-            CARGO_HOME="/usr/local/cargo" \\
-            PATH="/usr/local/cargo/bin:$PATH"
-
-        COPY setup/lib.sh /lib.sh
-
-        COPY setup/rustup.sh /
-        RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
-
-        COPY setup/rubygems.sh /
-        RUN /rubygems.sh
-
-        ENV LIBCLANG_PATH="" \\
-            BINDGEN_EXTRA_CLANG_ARGS="#{plat['bindgen_extra_clang_args']}"
-
-        COPY setup/rubybashrc.sh /
-        RUN /rubybashrc.sh
-      EOS
-    end
-  end
 end
