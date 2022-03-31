@@ -1,6 +1,4 @@
 ---
-name: Build and push docker images
-
 on:
   - workflow_dispatch
 

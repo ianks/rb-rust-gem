@@ -17,6 +17,15 @@ task :fmt do
 end
 
 namespace :docker do
+  task :gh do
+    require 'json'
+    sh 'gh workflow run "Build and push docker images" && sleep 3'
+    id = JSON.parse(`gh run list --workflow=docker.yml --limit=1 --json="databaseId"`).first['databaseId']
+    system "gh run watch #{id}"
+    sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Docker Build\"'"
+  rescue Interrupt
+    sh "gh run cancel #{id}"
+  end
   DOCKERFILE_PLATFORM_PAIRS.each do |pair|
     dockerfile, arch = pair
 
