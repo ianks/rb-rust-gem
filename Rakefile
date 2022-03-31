@@ -13,27 +13,31 @@ DOCKER = ENV.fetch("RBSYS_DOCKER", "docker")
 desc "Pretty the code"
 task :fmt do
   sh "shfmt -i 2 -w -ci -sr ./docker/setup"
-  sh "standardrb --fix Rakefile"
+  sh "standardrb --fix $(git ls-files '*.rb' '*Rakefile')"
 end
 
-def run_gh_workflow(name)
+def run_gh_workflow(file_name)
   require "json"
-  sh "gh workflow run \"#{name}\" && sleep 3"
-  id = JSON.parse(`gh run list --workflow=build.yml --limit=1 --json="databaseId"`).first["databaseId"]
+  require "yaml"
+
+  workflow = YAML.load(File.read(file_name))
+
+  sh "gh workflow run \"#{workflow["name"]}\" && sleep 3"
+  id = JSON.parse(`gh run list --workflow=#{File.basename(file_name)} --limit=1 --json="databaseId"`).first["databaseId"]
   system "gh run watch #{id}"
-  sh "osascript -e 'display notification \"#{name} workflow finished (#{id})\" with title \"GitHub Workflow\"'"
+  sh "osascript -e 'display notification \"#{workflow["name"]} workflow finished (#{id})\" with title \"GitHub Workflow\"'"
 rescue Interrupt
   sh "gh run cancel #{id}"
 end
 
 desc "Build the native gems on github"
-task ".github/workflows/build.yml" do
-  run_gh_workflow "Build native gems"
+task ".github/workflows/build.yml" do |t, _args|
+  run_gh_workflow t.name
 end
 
 desc "Build the docker images on github"
-task ".github/workflows/docker.yml" do
-  run_gh_workflow "Build and push docker images"
+task ".github/workflows/docker.yml" do |t, _args|
+  run_gh_workflow t.name
 end
 
 namespace :docker do
@@ -71,7 +75,7 @@ namespace :docker do
 end
 
 DOCKERFILE_PLATFORMS.each do |arch|
-  desc "Build native gem for #{arch}" 
+  desc "Build native gem for #{arch}"
   task "gem:native:#{arch}" do
     Dir.chdir "examples/rust_ruby_example" do
       sh "rake gem:native:#{arch}"

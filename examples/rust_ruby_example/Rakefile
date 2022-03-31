@@ -1,6 +1,6 @@
-require 'rake/extensiontask'
+require "rake/extensiontask"
 
-PLATFORMS =  %w[x86-mingw32 x64-mingw-ucrt x64-mingw32 x86-linux x86_64-linux arm-linux aarch64-linux x86_64-darwin arm64-darwin]
+PLATFORMS = ["x86_64-linux", "arm-linux", "aarch64-linux", "x86-linux", "x86_64-darwin", "arm64-darwin", "x86-mingw32", "x64-mingw32"]
 
 spec = Gem::Specification.new do |s|
   s.name = "rust_ruby_example"
@@ -11,7 +11,7 @@ spec = Gem::Specification.new do |s|
   s.authors = ["Ian Ker-Seymer"]
 end
 
-Rake::ExtensionTask.new('rust_ruby_example', spec) do |ext|
+Rake::ExtensionTask.new("rust_ruby_example", spec) do |ext|
   ext.cross_compile = true
   ext.cross_platform = PLATFORMS
 end
@@ -21,12 +21,13 @@ end
 
 PLATFORMS.each do |plat|
   task "gem:native:#{plat}" do
-    require 'rake_compiler_dock'
-    ENV['RCD_IMAGE'] = "rbsys/rcd:#{plat}"
-    sh "bundle package --all"   # Avoid repeated downloads of gems by using gem files from the host.
+    require "rake_compiler_dock"
+    ENV["RCD_IMAGE"] = "rbsys/rcd:#{plat}"
+    sh "bundle package --all" # Avoid repeated downloads of gems by using gem files from the host.
     RakeCompilerDock.sh <<~EOS, platform: plat
       set -e
       bundle --local 
+      rake -T
       rake native:#{plat} gem
     EOS
   end

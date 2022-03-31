@@ -1,20 +1,20 @@
-require 'mkmf'
-require 'rubygems/ext'
-require 'rubygems/ext/cargo_builder'
+require "mkmf"
+require "rubygems/ext"
+require "rubygems/ext/cargo_builder"
 
 target = "rust_ruby_example"
-dest_path = File.join( Dir.pwd, "target")
+dest_path = File.join(Dir.pwd, "target")
 results = []
 args = []
-lib_dir = Dir.pwd 
-cargo_dir = File.expand_path('../..', __dir__)
+lib_dir = Dir.pwd
+cargo_dir = File.expand_path("../..", __dir__)
 spec = Struct.new(:name, :metadata).new(target, {})
 
 make_install = <<~EOF
   target_prefix = /#{target}
 
   TARGET = #{target}
-  DLLIB = $(TARGET).#{RbConfig::CONFIG['DLEXT']}
+  DLLIB = $(TARGET).#{RbConfig::CONFIG["DLEXT"]}
   RUBYARCHDIR   = $(sitearchdir)$(target_prefix)
   CLEANLIBS = release/
 
@@ -24,11 +24,11 @@ make_install = <<~EOF
   \t$(INSTALL_PROG) $(DLLIB) $(RUBYARCHDIR)
 EOF
 
-File.write('Makefile', make_install)
+File.write("Makefile", make_install)
 
 begin
   Gem::Ext::CargoBuilder.new(spec).build(nil, dest_path, results, args, lib_dir, cargo_dir)
-rescue StandardError => e
+rescue
   puts results
   raise
 end
