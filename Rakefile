@@ -16,26 +16,24 @@ task :fmt do
   sh "standardrb --fix Rakefile"
 end
 
-desc "Build the native gems on github"
-task ".github/workflows/build.yml" do
+def run_gh_workflow(name)
   require "json"
-  sh 'gh workflow run "Build native gems" && sleep 3'
+  sh "gh workflow run \"#{name}\" && sleep 3"
   id = JSON.parse(`gh run list --workflow=build.yml --limit=1 --json="databaseId"`).first["databaseId"]
   system "gh run watch #{id}"
-  sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Native Gem\"'"
+  sh "osascript -e 'display notification \"#{name} workflow finished (#{id})\" with title \"GitHub Workflow\"'"
 rescue Interrupt
   sh "gh run cancel #{id}"
 end
 
+desc "Build the native gems on github"
+task ".github/workflows/build.yml" do
+  run_gh_workflow "Build native gems"
+end
+
 desc "Build the docker images on github"
 task ".github/workflows/docker.yml" do
-  require "json"
-  sh 'gh workflow run "Build and push docker images" && sleep 3'
-  id = JSON.parse(`gh run list --workflow=docker.yml --limit=1 --json="databaseId"`).first["databaseId"]
-  system "gh run watch #{id}"
-  sh "osascript -e 'display notification \"Workflow done (#{id})\" with title \"Docker Build\"'"
-rescue Interrupt
-  sh "gh run cancel #{id}"
+  run_gh_workflow "Build and push docker images"
 end
 
 namespace :docker do
@@ -61,6 +59,7 @@ namespace :docker do
   task build: DOCKERFILE_PLATFORMS.map { |p| "build:#{p}" }
 
   DOCKERFILE_PLATFORMS.each do |arch|
+    desc "Push #{arch} docker image"
     task "push:#{arch}" => "build:#{arch}" do
       sh "docker push rbsys/rake-compiler-dock-mri-#{arch}:#{RCD_TAG}"
       sh "docker push rbsys/rcd:#{arch}"
@@ -69,4 +68,13 @@ namespace :docker do
 
   desc "Push docker images for all platforms"
   task push: DOCKERFILE_PLATFORMS.map { |p| "push:#{p}" }
+end
+
+DOCKERFILE_PLATFORMS.each do |arch|
+  desc "Build native gem for #{arch}" 
+  task "gem:native:#{arch}" do
+    Dir.chdir "examples/rust_ruby_example" do
+      sh "rake gem:native:#{arch}"
+    end
+  end
 end
