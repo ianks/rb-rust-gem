@@ -49,9 +49,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-${{ matrix.platform.ruby_version }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-${{ matrix.platform.ruby_target }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.platform.ruby_version }}-buildx
+            ${{ runner.os }}-${{ matrix.platform.ruby_target }}-buildx
 
       - name: 🧱 Build container
         env:
