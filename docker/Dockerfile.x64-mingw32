@@ -17,7 +17,7 @@ RUN /rustup.sh x86_64-unknown-linux-gnu $RUST_TARGET $RUSTUP_DEFAULT_TOOLCHAIN
 COPY setup/rubygems.sh /
 RUN /rubygems.sh
 
-ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot /usr/i686-w64-mingw32/" \
+ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/i686-w64-mingw32/" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib/"
 
 COPY setup/rubybashrc.sh /
