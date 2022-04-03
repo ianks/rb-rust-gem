@@ -19,7 +19,7 @@ RUN /rubygems.sh
 
 RUN bash -c "source /lib.sh && install_packages libclang-dev"
 
-ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/lib/gcc/i686-w64-mingw32/9.3-posix" \
+ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/lib/gcc/i686-w64-mingw32/9.3-posix -I/usr/i686-w64-mingw32/include" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib/"
 
 COPY setup/rubybashrc.sh /
