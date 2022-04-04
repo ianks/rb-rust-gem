@@ -1,6 +1,6 @@
 require "rake/extensiontask"
 
-PLATFORMS = ["x86_64-linux", "arm-linux", "aarch64-linux", "x86-linux", "x86_64-darwin", "arm64-darwin", "x86-mingw32", "x64-mingw32"]
+PLATFORMS = ["x86_64-linux", "arm-linux", "aarch64-linux", "x86-linux", "x86_64-darwin", "arm64-darwin", "x86-mingw32", "x64-mingw32", "x64-mingw-ucrt"]
 
 spec = Gem::Specification.new do |s|
   s.name = "rust_ruby_example"
