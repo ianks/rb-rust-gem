@@ -11,6 +11,7 @@ main() {
   td="$(mktemp -d)"
   builtin pushd "${td}"
 
+  # Using my fork for now
   git clone --single-branch --branch cargo-builder-target --depth 1 https://github.com/ianks/rubygems .
   ruby setup.rb
 
