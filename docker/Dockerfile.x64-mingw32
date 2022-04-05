@@ -19,7 +19,13 @@ RUN /rubygems.sh
 
 RUN bash -c "source /lib.sh && install_packages libclang-dev"
 
-ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/x86_64-w64-mingw32 -I/usr/lib/llvm-10/lib/clang/10.0.0/include" \
+RUN set -ex; \
+    curl -Lo /llvm-mingw.tar.xz https://github.com/mstorsjo/llvm-mingw/releases/download/20220323/llvm-mingw-20220323-msvcrt-ubuntu-18.04-x86_64.tar.xz; \
+    mkdir /llvm-mingw; \
+    tar xvf /llvm-mingw.tar.xz -C /llvm-mingw --strip-components=1; \
+    rm /llvm-mingw.tar.xz; 
+
+ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/x86_64-w64-mingw32 -I/llvm-mingw/lib/clang/14.0.0/include -I/llvm-mingw/x86_64-w64-mingw32/include" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib/"
 
 COPY setup/rubybashrc.sh /
