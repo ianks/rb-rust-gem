@@ -22,7 +22,7 @@ RUN bash -c "source /lib.sh && install_packages libclang-dev"
 RUN set -ex; \
     curl -Lo /llvm-mingw.tar.xz https://github.com/mstorsjo/llvm-mingw/releases/download/20220323/llvm-mingw-20220323-msvcrt-ubuntu-18.04-x86_64.tar.xz; \
     mkdir /llvm-mingw; \
-    tar xvf /llvm-mingw.tar.xz -C /llvm-mingw --strip-components=1; \
+    tar xf /llvm-mingw.tar.xz -C /llvm-mingw --strip-components=1; \
     rm /llvm-mingw.tar.xz; 
 
 ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/x86_64-w64-mingw32 -I/llvm-mingw/lib/clang/14.0.0/include -I/llvm-mingw/x86_64-w64-mingw32/include" \
