@@ -25,8 +25,6 @@ RUN set -ex; \
     unzip /llvm-mingw.zip -d /llvm-mingw; \
     rm /llvm-mingw.zip; 
 
-RUN find /llvm-mingw -name stdarg.h && exit 1
-
 ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/i686-w64-mingw32 -I/llvm-mingw/llvm-mingw-20220323-msvcrt-i686/include -I/llvm-mingw/llvm-mingw-20220323-msvcrt-i686/lib/clang/14.0.0/include" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib/"
 
