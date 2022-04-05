@@ -25,7 +25,7 @@ RUN set -ex; \
     tar xf /llvm-mingw.tar.xz -C /llvm-mingw --strip-components=1; \
     rm /llvm-mingw.tar.xz; 
 
-ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/x86_64-w64-mingw32 -I/llvm-mingw/lib/clang/14.0.0/include -I/llvm-mingw/x86_64-w64-mingw32/include" \
+ENV BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr/x86_64-w64-mingw32 -I/llvm-mingw/lib/clang/14.0.0/include" \
     LIBCLANG_PATH="/usr/lib/llvm-10/lib/"
 
 COPY setup/rubybashrc.sh /
