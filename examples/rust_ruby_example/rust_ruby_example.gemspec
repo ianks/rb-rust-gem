@@ -6,4 +6,5 @@ Gem::Specification.new do |s|
   s.authors = ["Ian Ker-Seymer"]
   s.files = ["Cargo.toml", "Cargo.lock", "src/lib.rs"]
   s.metadata["allowed_push_host"] = "https://rubygems.pkg.github.com"
+  s.metadata["github_repo"] = "ssh://github.com/ianks/rb-rust-gem"
 end
