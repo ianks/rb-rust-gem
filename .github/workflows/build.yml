@@ -47,3 +47,20 @@ jobs:
           name: native-gem
           path: "examples/*/pkg/*-${{ matrix.platform.ruby_target }}.gem"
           retention-days: 1
+
+      - name: Push gem to gh registry
+        run: |
+          set -ex
+
+          mkdir -p ~/.gem
+
+          cat << EOF > ~/.gem/credentials
+          ---
+          :github: Bearer ${GITHUB_TOKEN}
+          EOF
+
+          chmod 0600 ~/.gem/credentials
+
+          for f in examples/*/pkg/*-${{ matrix.platform.ruby_target}}.gem; do
+            gem push --key github --host --host https://rubygems.pkg.github.com/ianks $f
+          done
