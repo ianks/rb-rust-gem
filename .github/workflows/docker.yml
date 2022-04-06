@@ -49,11 +49,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-${{ matrix.platform.ruby_target }}-buildx-${{ github.sha }}
+          key: ${{ matrix.platform.ruby_target }}-buildx-v2-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.platform.ruby_target }}-buildx
+            ${{ matrix.platform.ruby_target }}-buildx-v2
 
-      - name: 🧱 Build container
+      - name: Build container
         env:
           RBSYS_DOCKER: "docker buildx"
           RBSYS_DOCKER_BUILD_EXTRA_ARGS: "--cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,mode=max,dest=/tmp/.buildx-cache-new --load"
