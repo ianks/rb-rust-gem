@@ -5,4 +5,5 @@ Gem::Specification.new do |s|
   s.extensions = ["Cargo.toml"]
   s.authors = ["Ian Ker-Seymer"]
   s.files = ["Cargo.toml", "Cargo.lock", "src/lib.rs"]
+  s.metadata["allowed_push_host"] = "https://rubygems.pkg.github.com"
 end
