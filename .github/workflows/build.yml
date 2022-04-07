@@ -48,16 +48,16 @@ jobs:
           path: "examples/*/pkg/*-${{ matrix.platform.ruby_target }}.gem"
           retention-days: 1
 
-      - name: Push gem to gh registry
+      - name: Push to Rubygems
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
         run: |
           mkdir -p $HOME/.gem
           touch $HOME/.gem/credentials
           chmod 0600 $HOME/.gem/credentials
-          printf -- "---\n:github: Bearer ${GITHUB_TOKEN}\n" > $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.gem/credentials
 
           for f in examples/*/pkg/*-${{ matrix.platform.ruby_target}}.gem; do
-            gem push --key github --host https://rubygems.pkg.github.com/ianks $f
+            gem push --verbose "$f"
           done
 

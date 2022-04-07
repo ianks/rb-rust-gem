@@ -9,7 +9,6 @@ spec = Gem::Specification.new do |s|
   s.extensions = FileList["ext/**/extconf.rb"]
   s.summary = "Testing"
   s.authors = ["Ian Ker-Seymer"]
-  s.metadata["allowed_push_host"] = "https://rubygems.pkg.github.com"
   s.metadata["github_repo"] = "git@github.com:ianks/rb-rust-gem.git"
 end
 
