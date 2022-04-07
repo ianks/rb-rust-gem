@@ -1,18 +1,15 @@
 require "rake/extensiontask"
+require 'bundler'
 
 PLATFORMS = ["x86_64-linux", "arm-linux", "aarch64-linux", "x86-linux", "x86_64-darwin", "arm64-darwin", "x86-mingw32", "x64-mingw32", "x64-mingw-ucrt"]
 
-spec = Gem::Specification.new do |s|
-  s.name = "rust_ruby_example"
-  s.version = "0.1.0"
+spec = Bundler.load_gemspec("rust_ruby_example.gemspec").tap do |s|
   s.platform = Gem::Platform::RUBY
   s.extensions = FileList["ext/**/extconf.rb"]
-  s.summary = "Testing"
-  s.authors = ["Ian Ker-Seymer"]
-  s.metadata["github_repo"] = "git@github.com:ianks/rb-rust-gem.git"
 end
 
 Rake::ExtensionTask.new("rust_ruby_example", spec) do |ext|
+  ext.source_pattern = "*.{rs,Cargo.toml}"
   ext.cross_compile = true
   ext.cross_platform = PLATFORMS
 end

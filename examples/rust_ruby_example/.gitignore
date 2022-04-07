@@ -3,3 +3,4 @@ target/
 tmp/
 ext/rust_ruby_example/Makefile
 lib/rust_ruby_example.bundle
+pkg/
